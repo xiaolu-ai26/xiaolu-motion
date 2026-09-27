@@ -5,9 +5,10 @@
 #
 #   ./scripts/get_fonts.sh
 #
-# Pulls: Source Han Sans SC (Regular/Medium/Bold — the `sans` role), Source Han Serif SC
-# (Bold/Heavy — `serif`), LXGW WenKai (Regular — `kai`). See fonts/SOURCES.md for exact
-# versions/licenses, and for the 3 optional roles (display/mono/latin) this script does not fetch.
+# Pulls: Source Han Sans SC (Regular/Medium/Bold/Heavy — the `sans` role; Heavy is needed by
+# library/card-number-impact's big-digit rendering), Source Han Serif SC (Bold/Heavy — `serif`),
+# LXGW WenKai (Regular — `kai`). See fonts/SOURCES.md for exact versions/licenses, and for the
+# 3 optional roles (display/mono/latin) this script does not fetch.
 set -euo pipefail
 cd "$(dirname "${BASH_SOURCE[0]}")/.."
 DEST="fonts"
@@ -43,6 +44,8 @@ dl "$BASE_SANS/OTF/SimplifiedChinese/SourceHanSansSC-Medium.otf" "$DEST/SourceHa
    "1df61d31687d04fd2f928a3bb6ca6cd61f0e988cc267cf317f32406edbb49f70"
 dl "$BASE_SANS/OTF/SimplifiedChinese/SourceHanSansSC-Bold.otf" "$DEST/SourceHanSansSC-Bold.otf" \
    "df2b90f5bcc6d01dfc964cec5f6d535d6b6aebd26ed7fd79a9c1b3f2112fcb6b"
+dl "$BASE_SANS/OTF/SimplifiedChinese/SourceHanSansSC-Heavy.otf" "$DEST/SourceHanSansSC-Heavy.otf" \
+   "6374b11bc4c2cd4bd7be1a1d64cf5047906c8a6a025c64e023c6792e50ba985e"
 dl "$BASE_SANS/LICENSE.txt" "$DEST/LICENSE-SourceHanSans.txt" \
    "fcac737e761ec63dbfbdce11030a1780161920d80315edba9c8beff1c2bac5a2"
 

@@ -79,23 +79,27 @@ Claude 自主创作的 60 秒短片，代码驱动画面与配乐，可视化"AI
 
 "待整理"的纸质版组件目前只是从视频 20 生产代码里摘出来的函数，还没有包装成和 `components/*.js` 一样的参数化组件（`id`/`role`/`params`/`draw`/`bbox` 契约)；直接读函数源码来移植,不能像 `components/*.js` 那样即插即用。
 
-## 待重建
+## 全屏动效卡
 
-早期试做过、后来在关机清空临时目录时丢失的镜头,目前只有一句话描述,没有代码。等重建后再并入上面的正式表。
+早期试做过、后来在关机清空临时目录时丢失，2026-09-27 按最初的一句话描述重新实现的 7 张全屏卡。纯图形，不依赖任何真人素材；每条目录都自带 `src/build.py` + `src/<效果>.js` + 共享的 `src/shotkit.py`（渲染/合成/出片，11 条目全部相同，见 `library/_shared/rebuilt-shotkit/`）+ 本条目合成的音效（`src/sound.py`，无采样无音色库），可以直接 `cd library/<name>/src && python3 build.py render --out <目录>` 重渲。
 
-**7 张全屏卡：**
+| 镜头名 | 预览 | 做法 | 适合场景 | 入口 | 来源 |
+|---|---|---|---|---|---|
+| 活字印刷标题 (card-movable-type) | [![](library/card-movable-type/thumb.jpg)](library/card-movable-type/preview.mp4) | 每个字是有体积的 3D 金属活字（透视相机+逐面打光），按阅读顺序依次升起、翻正、落进排字槽，楔子锁版，扫光后副标题聚焦出现 | 标题卡、章节开头，"开源/工具/排版"类主题 | `library/card-movable-type/src/movable_type.js` | 重建版，2026-09-27 |
+| 汉字雨纠错 (card-hanzi-proof) | [![](library/card-hanzi-proof/thumb.jpg)](library/card-hanzi-proof/preview.mp4) | 三层景深的汉字雨落下变慢，一列停成成语；红笔圈出错字、划掉、手写改正、正确字滑入原位变成铅字，盖"校"印后雨继续落 | 纠错/校对、"AI 帮你检查"类主题，也可当慢下来聚焦的转场 | `library/card-hanzi-proof/src/hanzi_proof.js` | 重建版，2026-09-27 |
+| 输入框下指令 (card-prompt-box) | [![](library/card-prompt-box/thumb.jpg)](library/card-prompt-box/preview.mp4) | 通用输入框逐字打出指令并回车，三样生成物依次飞进一个白色纸盒，停一拍后合盖打勾；画面无任何平台/产品样式或图标 | "一句话交给 AI"、提交需求到打包交付的流程示意 | `library/card-prompt-box/src/prompt_box.js` | 重建版，2026-09-27 |
+| 时间线剪口 (card-timeline-cut) | [![](library/card-timeline-cut/thumb.jpg)](library/card-timeline-cut/preview.mp4) | 微距时间线上钢刀片切开入点/出点（火花+色散），中间片段翻转掉落，右侧片段左移合拢卡位（波纹删除），总时长读数滚动下降 | 讲剪辑、删废话、"自动剪掉停顿"类效率提升主题 | `library/card-timeline-cut/src/timeline_cut.js` | 重建版，2026-09-27 |
+| 画框隧道 (card-frame-tunnel) | [![](library/card-frame-tunnel/thumb.jpg)](library/card-frame-tunnel/preview.mp4) | 一层层描金画框向深处排列并各多转 5°，镜头推进时画框逐层擦过镜头，最终停在最里层画布的聚焦标题上 | 章节转场、"进入下一部分"、作品集/展览类片头 | `library/card-frame-tunnel/src/frame_tunnel.js` | 重建版，2026-09-27 |
+| 数字冲击 (card-number-impact) | [![](library/card-number-impact/thumb.jpg)](library/card-number-impact/preview.mp4) | 数字从 0 加速跳数并放大，速度线向中心汇聚，到达目标值时闪白+色散+冲击波环+火星四溅+镜头震动，辉光从炽白冷却成余烬 | 关键数据/结论强调，"提升 X 倍 / 省下 X%" | `library/card-number-impact/src/number_impact.js` | 重建版，2026-09-27 |
+| 连线工作流 (card-flow-nodes) | [![](library/card-flow-nodes/thumb.jpg)](library/card-flow-nodes/preview.mp4) | 工作流节点按层依次亮起并连线，光点沿线流动到结果节点，结果节点圆环充能满圈后闪白扩散完成 | 讲流程、自动化、"一套东西串起来"的 AI 工作流 | `library/card-flow-nodes/src/flow_nodes.js` | 重建版，2026-09-27 |
 
-- 活字印刷标题——标题文字像老式活字印刷机排版一样,一个个铅字模块敲印上版。
-- 汉字雨纠错——满屏汉字像雨点一样落下,途中被"纠正"成目标文字,呼应"自动纠错/自动修正"的主题。
-- 输入框下指令——一个聊天输入框被打字机式地敲入一行指令文字,模拟对 AI 下达指令的过程。
-- 时间线剪口——一条视频时间线被可视化,展示剪辑点/剪口如何被找到并处理。
-- 画框隧道——一串取景框/画框首尾相连,镜头穿过它们组成的隧道向前推进。
-- 数字冲击——一个大号数字猛地砸入画面,带冲击波和震屏,强调数据/成果的分量。
-- 连线工作流——几个步骤节点被逐一点亮,并用连线依次串起来,组成一张工作流示意图。
+## 真人融合镜头
 
-**4 个真人融合镜头：**
+同一批 2026-09-27 重建，另外 4 条：图形和真人合成在一起（Apple Vision 人像抠像/人脸/手部姿态追踪），素材取自作者本人已发布视频的锁定母版，人物像素本身不做调色改动。共享的 Vision 探针与逐帧素材读取见 `library/_shared/rebuilt-fusion-runtime/`；每条 README 都记录了具体取用的帧范围、原话，以及肤色色差和 `qa.pixel_qa` 的核验结果。**这 4 条的预览/缩略图里出现真人（作者本人）是有意的——效果本身就是"图形与真人合成"，且素材经作者本人同意公开。**
 
-- 字在人后——文字出现在真人身后的图层,人物在前景,文字随镜头视差略微漂移。
-- 穿进录屏——镜头从真人画面"穿"进一段录屏/软件界面里,做无缝的转场式推进。
-- 活字扫描——一道扫描线扫过真人画面,扫过之处画面转成活字印刷质感的效果层。
-- 手势抛字——真人做一个抛/挥的手势,一段文字或卡片随手势轨迹"被抛"到画面另一侧。
+| 镜头名 | 预览 | 做法 | 适合场景 | 入口 | 来源 |
+|---|---|---|---|---|---|
+| 字在人后 (fusion-word-behind) | [![](library/fusion-word-behind/thumb.jpg)](library/fusion-word-behind/preview.mp4) | Vision 逐帧抠像+背景补全，词落在人物身后一层，说到这个词时对焦落定，随后墙/字/人三层按不同速度推近形成视差 | 口播关键词、标题式强调、杂志封面感的强调用法 | `library/fusion-word-behind/src/word_behind.js` | 重建版，2026-09-27 |
+| 穿进录屏 (fusion-screen-pip) | [![](library/fusion-screen-pip/thumb.jpg)](library/fusion-screen-pip/preview.mp4) | 人脸追踪取景，真人从全屏缩成圆角小窗，再飞进一个通用录屏界面落位到主播小窗位，随后界面开始工作（加载/打勾/时间线） | 讲工具、演示操作、从真人转到录屏演示的衔接镜头 | `library/fusion-screen-pip/src/screen_pip.js` | 重建版，2026-09-27 |
+| 活字扫描 (fusion-type-scan) | [![](library/fusion-type-scan/thumb.jpg)](library/fusion-type-scan/preview.mp4) | 人物身后的墙被扫描线逐步换成排满活字的版面（字取自本条视频文案），第二道更亮的检查扫描线经过时活字翻面露出新字 | "检查/扫描/审核/排版"类口播，人物站定、背景干净的镜头 | `library/fusion-type-scan/src/type_scan.js` | 重建版，2026-09-27 |
+| 手势抛字 (fusion-hand-throw) | [![](library/fusion-hand-throw/thumb.jpg)](library/fusion-hand-throw/preview.mp4) | Vision 手部姿态追踪捕捉挥手动作，每说一个词就跟手甩出、沿弧线飞到头部一侧贴住，各自样式对应它所指代的风格 | 口播里的列举/清单，"把 A 丢给 B"类动作强调 | `library/fusion-hand-throw/src/hand_throw.js` | 重建版，2026-09-27 |

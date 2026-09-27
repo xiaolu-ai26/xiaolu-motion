@@ -12,8 +12,8 @@
 
 | | | | |
 |---|---|---|---|
-| ![](library/word-cut/thumb.jpg) | ![](library/semantic-starfield/thumb.jpg) | ![](library/scoring/thumb.jpg) | ![](library/falling-text/thumb.jpg) |
-| 切词 | 语义星空 | 打分 | 落字 |
+| ![](library/semantic-starfield/thumb.jpg) | ![](library/falling-text/thumb.jpg) | ![](library/card-number-impact/thumb.jpg) | ![](library/fusion-word-behind/thumb.jpg) |
+| 语义星空 | 落字 | 数字冲击 | 字在人后 |
 
 ## 目录
 

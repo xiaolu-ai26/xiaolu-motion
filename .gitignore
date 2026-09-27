@@ -6,4 +6,5 @@ __pycache__/
 .DS_Store
 # example material stays outside the repo (paths only); derived transcripts are regenerated
 examples/**/words.json
-fonts/
+fonts/*
+!fonts/SOURCES.md
