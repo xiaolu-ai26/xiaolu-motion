@@ -1,0 +1,9 @@
+# xiaolu-motion (engine side). audio/ manages its own ignores.
+.cache/
+**/out/
+__pycache__/
+*.pyc
+.DS_Store
+# example material stays outside the repo (paths only); derived transcripts are regenerated
+examples/**/words.json
+fonts/

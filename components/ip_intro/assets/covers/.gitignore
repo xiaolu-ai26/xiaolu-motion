@@ -1,0 +1,3 @@
+# 封面卡是本机资产（Max 往期封面的裁切件），不入库。用 ../../tools/prep_covers.py 按配方生成。
+*
+!.gitignore

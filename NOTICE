@@ -1,0 +1,51 @@
+xiaolu-motion
+Copyright 2026 the xiaolu-motion contributors
+
+This product is licensed under the Apache License, Version 2.0 (see LICENSE).
+
+================================================================================
+Third-party fonts (not included in this repository)
+================================================================================
+
+This project's style tokens (styles/*.json) reference open-source fonts that are
+NOT committed to this repository (fonts/ is gitignored). Run `scripts/get_fonts.sh`
+to download them, or install the same files under ~/Library/Fonts. Exact versions,
+download URLs and SHA-256 checksums are recorded in fonts/SOURCES.md.
+
+  Source Han Sans SC (思源黑体)     Copyright 2014-2021 Adobe (http://www.adobe.com/),
+                                    with Reserved Font Name "Source".
+                                    Licensed under the SIL Open Font License, Version 1.1.
+
+  Source Han Serif SC (思源宋体)    Copyright 2014-2021 Adobe (http://www.adobe.com/),
+                                    with Reserved Font Name "Source".
+                                    Licensed under the SIL Open Font License, Version 1.1.
+
+  LXGW WenKai (霞鹜文楷)            Copyright the LXGW WenKai contributors
+                                    (https://github.com/lxgw/LxgwWenKai).
+                                    Licensed under the SIL Open Font License, Version 1.1.
+
+Full OFL license texts for each font are downloaded alongside them by
+scripts/get_fonts.sh (fonts/LICENSE-SourceHanSans.txt, fonts/LICENSE-SourceHanSerif.txt,
+fonts/LICENSE-LXGWWenKai.txt) and are also available at:
+  https://github.com/adobe-fonts/source-han-sans/blob/release/LICENSE.txt
+  https://github.com/adobe-fonts/source-han-serif/blob/release/LICENSE.txt
+  https://github.com/lxgw/LxgwWenKai/blob/main/OFL.txt
+
+The SIL Open Font License permits embedding these fonts in rendered video output
+without restriction. It does not permit selling the font files themselves, and
+any modified version (e.g. a subset) may not keep the Reserved Font Name "Source".
+
+Three additional font roles referenced by styles/base.json (display: Smiley Sans
+得意黑, mono: JetBrains Mono, latin: Inter — all also OFL/permissively licensed) are
+NOT fetched by scripts/get_fonts.sh; see fonts/SOURCES.md for their sources if needed.
+When none of the above are installed, the renderer falls back to system fonts
+(PingFang SC / Songti SC / SF) and marks the output as containing non-redistributable
+fonts in BUILD_STATUS.json — fine for local drafts, not for a public release build.
+
+================================================================================
+Audio
+================================================================================
+
+audio/xlaudio synthesizes all sound effects and musical cues from code (oscillators,
+FM synthesis, filtered noise, synthesized impulse responses) — no samples, sample
+libraries, MIDI instruments, or AI music services are used or required.
