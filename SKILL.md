@@ -30,7 +30,7 @@ description: Director workflow and reusable motion-graphics shot library for tur
 
 ### 第三步:分镜样帧 —— 先出关键帧,确认了再出全片
 
-1. 按逐字稿写分镜 JSON(schema 见 `timeline/SCHEMA.md`;写法参考 `library/` 里任意一条现成分镜的 README)。挑几个关键镜头(通常是开场钩子 + 1-2 个代表性中段镜头 + 结尾),只渲染这几帧的静态样张(`render/` 支持按时间点出单帧,不用等全片渲染完)。
+1. 按逐字稿写分镜 JSON(schema 见 `timeline/SCHEMA.md`;写法参考 `library/` 里任意一条现成分镜的 README)。挑几个关键镜头(通常是开场钩子 + 1-2 个代表性中段镜头 + 结尾),只渲染这几帧的静态样张——本引擎自己的分镜用 `python3 -m render stills RESOLVED --times 1.0 2.5 --out-dir DIR`(不用等全片渲染完);更复杂的分镜排版/多帧总览板参考 `library/_shared/storyboard-frames/`(渲染关键帧 PNG + 拼总览联系表的参考实现,含如何用它出"样图给用户选"的具体命令)。
 2. 把样帧发给用户确认构图、字号、颜色、镜头节奏。用户觉得不对就改分镜参数重出样帧,不要跳过这一步直接渲染全片——渲染全片是这四步里最贵的一步,提前在样帧阶段挑错比事后重渲便宜得多。
 3. 样帧通过后才进入第四步。
 
@@ -40,6 +40,7 @@ description: Director workflow and reusable motion-graphics shot library for tur
 2. 渲染:先出**低清全片**(参考本仓库既有的 540p 草稿惯例)给用户确认剪辑点、字幕时机、镜头顺序;确认没问题再出高清成片。低清阶段发现的问题(漏字、卡点不对、某镜太快看不清)在这一步改,不要等高清渲染完才发现。
 3. 高清成片出来后跑 QA 门禁(`qa.check` 用于本引擎分镜,`qa.pixel_qa` 用于任意成片,见下文清单)。**QA 不过就是没做完,不是"差不多能用"**——回到分镜或剪辑点修,再重新出片、重新跑 QA,直到干净通过。不要把 `final.QA_FAILED.mp4` 当成交付物。
 4. 交付前确认成片来源清楚:哪一版分镜、哪一版剪辑点列表、跑了哪次 QA 报告,方便用户回溯。
+5. 把多个镜头/多条素材总装成一条成片(字幕烧录、插入既有成片、混音)时,`library/_shared/video20-a0-pipeline/` 是一个真实项目的参考实现——不是通用工具,但能看清楚这几步具体怎么接在一起;它的 README 标了哪些是那条视频专属、换项目要改哪些参数。
 
 ## 固定规则
 
@@ -54,18 +55,33 @@ description: Director workflow and reusable motion-graphics shot library for tur
 
 ## 剪辑技术
 
-### 删停顿(pause_cuts 思路)
+### 删停顿(`scripts/pause_cuts.py`)
 
-只剪静音、不剪内容,思路参考本仓库既往实现(未来可能会独立打包出一版通用脚本,现在按下面的规则实现):
+只剪静音、不剪内容。用法:
 
-- 句中停顿(非结尾)长于 0.25s 的,收短到约 0.15s;句末停顿收短到约 0.22s——停顿全部收短而不是切掉一部分停顿一部分不切,保留呼吸感但去掉拖沓。
-- 每个切点在词起音前后各留 0.07-0.08s 的安全带,避免咬掉字头字尾;切点吸附到帧边界,不产生半帧。
-- 绝不在以下区间内切:片头钩子、任何组件自己的动画窗口(分镜里组件的入场/出场/关键帧时间)、任何 SFX 音效窗口——这些窗口从分镜/组件参数里读出来,不是硬编码时间点。
-- 切完之后必须验证:对着人声轨道做能量(RMS)检查,确认切点附近确实是静音而不是被切掉的字;对候选切点前后解码低分辨率帧,比较帧间跳变幅度,挑出"视觉风险"最高的几个切点人工复核(画面正好有个动作被切断,即使声音没问题也可能违和)。
+```bash
+python3 scripts/pause_cuts.py detect --words words.json --video clip.mp4 \
+  [--protect protect.json] -o cuts.json          # 找切点,写剪点表 JSON
+python3 scripts/pause_cuts.py apply cuts.json --video clip.mp4 -o clip.cut.mp4   # 应用切点
+```
 
-### 可选整体提速(约 1.1×)
+- `--words` 是本仓库已有的 `timeline/words.py` 词级时间码格式(`{"words":[{"w","s","e"}, ...]}`)。
+- `--protect` 是可选的保护区间列表(`[{"start","end","why"?}]`)——分镜里组件自己的入场/出场窗口、SFX 音效窗口都可以从分镜/组件参数里读出来,拼成这份文件传进去;绝不在这些区间内切。
+- 默认规则:句中停顿(非结尾)长于 0.25s 的收短到约 0.15s,句末(依上一个词是否以 `。？！.!?` 结尾判断)收短到约 0.22s;每个切点在词起音前后各留 0.07/0.08s 安全带;给了 `--fps`(或 `--video` 自动探测到的帧率)时切点吸附到帧边界。
+- 切点必须验证:`detect` 会对候选切点做人声能量(RMS/峰值 dBFS)检查,从响的一侧收缩直到低于 `--silence-db`(默认 -66dBFS)才落定,查不到足够安静的子区间就跳过、记进输出的 `skipped` 里,不会咬字。
+- `apply` 用同一组切点同时剪画面和声音(音画对得上):画面在切点硬切(不做画面交叉淡化,会重影),声音在每个切点做等功率交叉淡化(`--crossfade-ms`,默认 12ms,落在 10-15ms 区间)。
+- 一条视频生产管线自己的动画窗口表如果比一份手写的 `--protect` 文件更复杂(比如按分镜里每个组件动态算保护区间),参考 `library/_shared/video20-a0-pipeline/` 里更完整的项目专属实现。
 
-人声轨道用 `atempo`(或等效的时长伸缩算法)变速——这类算法本身就不改音高,不需要额外的音高校正;不要用简单的重采样(会同时拉高音高)。BGM 不要跟着人声一起等比例拉伸对不上卡点:先确定提速后的最终时长和新的卡点位置,再单独给 BGM 铺一条对齐新卡点的轨(`audio/xlaudio` 的 cue 系统或按新时间轴重新 `render_cues`),BGM 是"另垫"上去的,不是和人声一起变速的。
+### 可选整体提速(`scripts/speed.py`,约 1.1×)
+
+```bash
+python3 scripts/speed.py --video clip.cut.mp4 --speed 1.1 -o clip.fast.mp4
+python3 scripts/speed.py --video clip.cut.mp4 --speed 1.1 --bgm bed.mp3 --bgm-gain-db -14 -o clip.fast.mp4
+```
+
+- 画面:`setpts=PTS/speed` 原始帧率丢帧,不插帧——动作观感不变,只是变快。
+- 人声:ffmpeg `rubberband` 滤镜变速(`pitch=1` 保持音高),没有 `rubberband` 时退回 `atempo`(会打印警告,音高保持没有 rubberband 干净)。
+- BGM(`--bgm`,可选):按自己的原速铺在提速后的新时长下面,不跟人声一起拉伸——跟着拉伸会和 BGM 自己的卡点对不上。这里只做简单的裁剪/循环+淡入淡出+增益混音,不是响度匹配的母带;要做贴合人声的闪避混音,把这个脚本产出的提速人声传给 `audio/xlaudio`(见 `audio/README.md`)。
 
 ## 性能与稳定性
 

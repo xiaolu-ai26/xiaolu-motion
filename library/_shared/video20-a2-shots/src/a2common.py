@@ -2,11 +2,11 @@
 
 Drawing primitives come straight from storyboard_v2/src/sb_lib.py (the approved storyboard kit, read-only),
 so the moving version and the storyboard stills are the same design: paper, label, pip_card, stamp, tape,
-icons, fonts (Source Han Sans SC from ~/Projects/xiaolu-motion/fonts).
+icons, fonts (Source Han Sans SC from this repo's fonts/, see a2paths.XM_FONTS).
 
 Compositing is done in float32 RGB [0, 1] with numpy / OpenCV; UI elements are drawn with PIL (RGBA) and
-pasted with `paste_rgba`. Max's footage is decoded frame-exact from the source (BT.709 tv -> RGB) and
-never re-timed: every output frame k uses the source frame timeline.v2_to_src(k / 30).
+pasted with `paste_rgba`. The presenter's footage is decoded frame-exact from the source (BT.709 tv -> RGB)
+and never re-timed: every output frame k uses the source frame timeline.v2_to_src(k / 30).
 """
 import json
 import math

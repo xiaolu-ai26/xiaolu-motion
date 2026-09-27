@@ -5,7 +5,7 @@ Technique notes (die-cut sticker edge + warm shadow, torn paper with a white cor
 translucent washi tape, ransom-letter title, red stamp with missing ink, 8 Hz sticker boil)
 follow common collage practice; no third-party code was copied.
 
-Fonts (SIL OFL, from ~/Projects/xiaolu-motion/fonts): 思源黑体 SC for captions / cards,
+Fonts (SIL OFL, from this repo's fonts/ — see FONT_DIR below): 思源黑体 SC for captions / cards,
 霞鹜文楷 for small handwritten notes only.
 """
 import math

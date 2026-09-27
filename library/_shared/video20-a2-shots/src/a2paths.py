@@ -8,8 +8,8 @@ SRC_VIDEO = Path(os.environ.get("XM_RAW_FOOTAGE", "raw_footage.mov"))  # your ow
 DEMOS = Path(os.environ.get("XM_DEMOS_DIR", "../demos"))
 SB2_SRC = VP / '05_visual/storyboard_v2/src'          # timeline.py (time truth) + sb_lib.py (drawing kit), read-only
 SHOTS = VP / '05_visual/build/shots'
-XM_FONTS = Path.home() / 'Projects/xiaolu-motion/fonts'
-XM_AUDIO = Path.home() / 'Projects/xiaolu-motion/audio'
+XM_FONTS = Path(os.environ.get("XM_FONT_DIR", str(Path(__file__).resolve().parents[4] / 'fonts')))
+XM_AUDIO = Path(os.environ.get("XM_AUDIO_DIR", str(Path(__file__).resolve().parents[4] / 'audio')))
 # scratch (transient mattes, plates, compiled Vision tools); everything here can be rebuilt by prep_vision.py
 SCRATCH = Path(os.environ.get("XM_SCRATCH_DIR", "/tmp/xm_scratch")) / 'a2'
 WORK = SCRATCH / 'work'

@@ -1,6 +1,6 @@
 # paper-craft-components
 
-Documentation home for video 20's recurring "paper craft" visual primitives — the small set of drawing functions that reappear across most of its A0/A1-batch shots. `sb_lib.py` and `a0lib.py` are duplicated here verbatim from `../video20-a0-shots/src/` and `../video20-a1-shots/src/` (both already confirmed clean of personal paths) purely so these concepts have one place to be read and pointed at, independent of which shot batch happens to use them at runtime. The copies actually imported by the shots are the ones under the `video20-a{0,1}-shots` folders.
+Documentation home for video 20's recurring "paper craft" visual primitives — the small set of drawing functions that reappear across most of its A0/A1-batch shots. `sb_lib.py` and `a0lib.py` are duplicated here verbatim from `../video20-a0-shots/src/` and `../video20-a1-shots/src/` purely so these concepts have one place to be read and pointed at, independent of which shot batch happens to use them at runtime. (`sb_lib.py`'s `FONTS` constant originally used `os.path.expanduser('~/Projects/xiaolu-motion/fonts')` — a personal path that a literal `/Users/`/`maxzhl` grep doesn't catch; patched here and in both other copies to an `XM_FONT_DIR`-overridable default, same pattern as the rest of this repo's ported code.) The copies actually imported by the shots are the ones under the `video20-a{0,1}-shots` folders.
 
 ## Function → concept map
 

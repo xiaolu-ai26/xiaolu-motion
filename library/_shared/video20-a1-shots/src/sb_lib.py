@@ -13,7 +13,7 @@ import numpy as np
 from PIL import Image, ImageDraw, ImageFilter, ImageFont, ImageChops
 
 W, H = 1080, 1920
-FONTS = Path(os.path.expanduser('~/Projects/xiaolu-motion/fonts'))
+FONTS = Path(os.environ.get("XM_FONT_DIR", str(Path(__file__).resolve().parents[4] / 'fonts')))
 
 INK = (28, 27, 25)
 PAPER = (246, 241, 231)

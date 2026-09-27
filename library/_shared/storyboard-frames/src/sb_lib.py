@@ -13,6 +13,8 @@ import numpy as np
 from PIL import Image, ImageDraw, ImageFilter, ImageFont, ImageChops
 
 W, H = 1080, 1920
+# Default resolves to this repo's own fonts/ (this file lives at library/_shared/storyboard-frames/src/,
+# so parents[4] is the repo root); override with XM_FONT_DIR to point elsewhere.
 FONTS = Path(os.environ.get("XM_FONT_DIR", str(Path(__file__).resolve().parents[4] / 'fonts')))
 
 INK = (28, 27, 25)
