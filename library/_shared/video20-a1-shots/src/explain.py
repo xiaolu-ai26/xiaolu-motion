@@ -1,8 +1,8 @@
-"""Shots 07 / 08 / 09: demo explained on a taped card (left, 0.64x, storyboard shot7 / shot9 layout), Max in the PiP.
+"""Shots 07 / 08 / 09: demo explained on a taped card (left, 0.64x, storyboard shot7 / shot9 layout), the presenter in the PiP.
 
-Every shot: frame 0 is Max's untouched full frame; the whole frame shrinks into the PiP box (14 frames), the demo card
+Every shot: frame 0 is the presenter's untouched full frame; the whole frame shrinks into the PiP box (14 frames), the demo card
 flies in from the left, the '成片 · xx' tag pops; at the end the card flies out while the PiP grows back to the full
-frame (14 frames), the last frames are Max's untouched full frame again.  The demo's own sound is muted by A0; its
+frame (14 frames), the last frames are the presenter's untouched full frame again.  The demo's own sound is muted by A0; its
 subtitles stay inside the card at 0.64x (never at full size next to the main subtitle).
 """
 import math
@@ -206,7 +206,7 @@ class Shot07(ExplainShot):
         (945, 957, 'play', 511),     # 434-446: strip slaps, 晴 pops 439-441 @ 950-952 <- 天 31.70
         (958, 963, 'hold', 446),
         (964, 1064, 'play', 380),    # 584-663: 惬意 pops 589-591 @ 969-971 <- 心 32.34; sparkles; stops before T10
-    ], lo=292, hi=663)              # (663 is reached at 1043; from 1045 Max grows back over the card)
+    ], lo=292, hi=663)              # (663 is reached at 1043; from 1045 the presenter grows back over the card)
 
     # local magnification of the element that answers the word (demo px box, anchor, peak m, rise frame, fall end)
     ZOOMS = [
@@ -268,11 +268,11 @@ def coons_patch(img, box, band=6, smooth=41):
 class Shot08(ExplainShot):
     """而这是科普，你讲到的原理会变成图和动画，跟着你的内容一步步画出来  (v2 35.50-41.97)
 
-    Max stays full frame through 而这是科普 (35.68-36.74), shrinks into the PiP on 科普.  kepu_demo.mp4 diagram
+    The presenter stays full frame through 而这是科普 (35.68-36.74), shrinks into the PiP on 科普.  kepu_demo.mp4 diagram
     section (§0.1: 4.95-11.42 s); the empty diagram waits until 图 (38.53, words_v2.json), then the kepu's own
     drawing plays step by step on the words, idle stretches cut out, and its last touch (越厉害 + glow at the blue
-    end, frames 318-324) lands on 画 of 画出来 (41.23).  The kepu's own PiP (a second, smaller Max, demo px
-    x 652-968, y 950-1370 + glow) is replaced by a clean plate of the dark stage, so only the main Max is visible.
+    end, frames 318-324) lands on 画 of 画出来 (41.23).  The kepu's own PiP (a second, smaller presenter view, demo px
+    x 652-968, y 950-1370 + glow) is replaced by a clean plate of the dark stage, so only the main presenter view is visible.
     """
     key, F0, F1 = '08', 1065, 1259
     demo_path, kind, seed = KEPU, '科普', 24

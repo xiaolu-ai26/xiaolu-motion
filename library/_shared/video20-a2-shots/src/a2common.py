@@ -261,7 +261,7 @@ def grab(video, f, fps=FPS):
 
 # ------------------------------------------------------------------ person re-composite (clean plate)
 class Host:
-    """premultiplied foreground of Max from the matte and the shot's clean plate (P = I - (1-a) plate where the
+    """premultiplied foreground of the presenter from the matte and the shot's clean plate (P = I - (1-a) plate where the
     plate was really seen; I * a elsewhere), then warped by the same affine as the new layout"""
 
     def __init__(self, plate_png):

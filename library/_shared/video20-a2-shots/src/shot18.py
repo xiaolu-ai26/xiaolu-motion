@@ -1,4 +1,4 @@
-"""Shot 18 (v2 2:17.27-2:25.00, frames 4118..4349): split screen. Left: yellow paper, Max matted (clean-plate
+"""Shot 18 (v2 2:17.27-2:25.00, frames 4118..4349): split screen. Left: yellow paper, the presenter matted (clean-plate
 premultiplied foreground, 0.70), role card 「你 创意 + 拍摄」. Right: an Agent workbench working by itself:
 the preview plays the real vlog demo, the timeline cuts out a dead-air piece (ripple), the audio lane fills up to
 the moving playhead, 「+ 转场」「+ 音效」「+ 贴纸字幕」 pop one by one and grow their FX blocks, role card
@@ -7,8 +7,8 @@ the moving playhead, 「+ 转场」「+ 音效」「+ 贴纸字幕」 pop one by
 
 Word sync (words_v2.json): 创意 -> left card, 拍摄 -> its second half, 剪辑 -> right card, 包装 -> its second
 half, 可以 / 全部 / 交给 -> the three chips. The timeline cut lands on the real jump cut of the source (2:20.833).
-Open / close: the workbench pushes in from the right edge while Max shrinks onto the yellow half (15 frames each);
-frame 4118 and frame 4349 are Max's untouched frames.
+Open / close: the workbench pushes in from the right edge while the presenter shrinks onto the yellow half (15 frames each);
+frame 4118 and frame 4349 are the presenter's untouched frames.
 """
 import math
 
@@ -99,7 +99,7 @@ class Shot18:
         pl = cv2.cvtColor(cv2.imread(str(WORK / 'plate18.png')), cv2.COLOR_BGR2RGB).astype(np.float32) / 255.0
         self.plate = pl
         # where the room plate can be shown during open / close: really seen pixels plus a 45 px band around them
-        # (the thin guard band next to Max's outline); the big never-seen block behind his torso stays yellow
+        # (the thin guard band next to the presenter's outline); the big never-seen block behind his torso stays yellow
         seen = cv2.imread(str(WORK / 'plate18_seen.png'), 0)
         ok = cv2.dilate(seen, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (91, 91)))
         self.room_ok = cv2.GaussianBlur(ok.astype(np.float32) / 255.0, (0, 0), 10)
@@ -108,7 +108,7 @@ class Shot18:
         fb = np.array([faces[f][0] for f in fr], np.float32)
         cx = float(np.median((fb[:, 0] + fb[:, 2]) / 2))
         fy0 = float(np.median(fb[:, 1]))
-        # face centre at x 250 (not 270): Max leans +-60 px; at 250 his face box + 12 px stays left of the divider
+        # face centre at x 250 (not 270): the presenter leans +-60 px; at 250 their face box + 12 px stays left of the divider
         # (x 536) and inside the frame in every frame of the shot
         self.M = np.float32([[S18, 0, 250 - cx * S18], [0, S18, 330 - fy0 * S18]])
         ramp = np.clip((H - 1 - np.arange(H, dtype=np.float32)) / 90.0, 0, 1)   # fade the body out above its frame cut
@@ -253,7 +253,7 @@ class Shot18:
         canvas[:] = yel
         if L < 1:
             # the room fades into the yellow; only where the clean plate was really seen (the inpainted part of the
-            # plate, always behind Max, would show as colour blocks once he shrinks), outside the frame: yellow
+            # plate, always behind the presenter, would show as colour blocks once they shrink), outside the frame: yellow
             room = warp_affine(self.plate, M, interp=cv2.INTER_LINEAR)
             seen = warp_affine(self.room_ok, M, interp=cv2.INTER_LINEAR)
             ra = ((1 - L) * seen)[..., None]
@@ -266,7 +266,7 @@ class Shot18:
         canvas = canvas * (1 - aw[..., None]) + Pw
         qa['person_M'] = M.tolist()
         # left role card (创意 -> 创意 + 拍摄), fades with the close
-        ca = clamp01((L - 0.55) / 0.45) if k >= CLOSE[0] else 1.0     # gone before Max grows back into its place
+        ca = clamp01((L - 0.55) / 0.45) if k >= CLOSE[0] else 1.0     # gone before the presenter grows back into its place
         if t >= T['chuangyi'] - 0.02:
             s = pop(t, T['chuangyi'] - 0.02, 0.28, 0.05)
             sw = prog(t, T['paishe'] - 0.02, T['paishe'] + 0.08)

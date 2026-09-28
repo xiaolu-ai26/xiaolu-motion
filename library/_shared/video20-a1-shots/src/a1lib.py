@@ -353,7 +353,7 @@ def face_at(sf):
 
 def head_top(rgb, face):
     """top of the hair above a face box: highest row (above the face) where >= 18% of the face-width columns are dark
-    hair (the wall behind Max is light grey, the hair is near-black)"""
+    hair (the wall behind the presenter is light grey, the hair is near-black)"""
     x0, y0, x1, y1 = face
     cx0, cx1 = int(x0 + 0.1 * (x1 - x0)), int(x1 - 0.1 * (x1 - x0))
     g = rgb[:max(1, y0), cx0:cx1].astype(np.float32).mean(2)

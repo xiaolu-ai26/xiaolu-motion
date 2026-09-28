@@ -1,14 +1,14 @@
-"""Shot 14a, second design (2026-09-27, after Max: 发牌 "怪怪的", "切的太硬", "绿色的台 + 放大人脸很丑"):
+"""Shot 14a, second design (2026-09-27, after user feedback: 发牌 "怪怪的", "切的太硬", "绿色的台 + 放大人脸很丑"):
 style quick-swipes on the live frame + 2x2 style grid + pick.
 
-Max stays at his original framing (scale 1, never enlarged). No table, no mat.
-  拼接 / 胶片 / 杂志 / 发布会   the whole frame (with Max) switches to that style through a horizontal swipe with
+The presenter stays at their original framing (scale 1, never enlarged). No table, no mat.
+  拼接 / 胶片 / 杂志 / 发布会   the whole frame (with the presenter) switches to that style through a horizontal swipe with
                                motion blur and a soft light on the boundary (like swiping camera filters), 7 frames,
                                centred on the word; the style name eases in, in the style's own type
   等等                          two short flashes (paper hand-drawn, floating-card explainer), 4-frame swipes, back to
                                the untouched frame
   你可以从里面…                  the frame shrinks into the top-left cell of a 2x2 grid (turning into the collage
-                               style), the other three styles slide in from the edges; every cell is Max's live frame
+                               style), the other three styles slide in from the edges; every cell is the presenter's live frame
   挑一个                        yellow ring on the collage cell, green check, the cell pushes out to full screen
   (before the source jump cut)  swipe back to the untouched frame; 14b (the brush) follows
 
@@ -160,13 +160,13 @@ def eased_name(canvas, img, cx, cy, t, t0, dur=0.32, rise=26):
     return elem_bbox(a)
 
 
-# ------------------------------------------------------------------ the styles (full frame, Max at scale 1)
+# ------------------------------------------------------------------ the styles (full frame, the presenter at scale 1)
 class Styles:
     def __init__(self):
         self.host = Host(WORK / 'plate14.png')
-        # collage (2026-09-27 Max: richer): dotted journal page; behind Max: torn kraft / halftone pink / graph paper,
+        # collage (2026-09-27 user feedback: richer): dotted journal page; behind the presenter: torn kraft / halftone pink / graph paper,
         # polaroids of real vlog-demo frames; in front: tapes, stickers, handwritten notes, date stamp. Everything that is
-        # in front of Max stays outside his face box + 12 px (x <= 171 or x >= 892 between y 533 and 1265).
+        # in front of the presenter stays outside their face box + 12 px (x <= 171 or x >= 892 between y 533 and 1265).
         self.collage_bg = to_f(paper(tone=(243, 236, 222), dots=38, seed=141, grain=4, blotch=6))
         back = Image.new('RGBA', (W, H), (0, 0, 0, 0))
         front = Image.new('RGBA', (W, H), (0, 0, 0, 0))
@@ -266,7 +266,7 @@ class Styles:
         leak += np.exp(-(((xx - 1080) / 160) ** 2 + ((yy - 900) / 700) ** 2)) * 0.30
         self.leak = cv2.GaussianBlur(leak, (0, 0), 20)[..., None] * np.array([1.0, 0.45, 0.16], np.float32)
         # magazine: a cover (2026-09-27 coordinator: must read as a magazine cover at a glance, not a second beige page):
-        # warm red cover stock, a huge serif masthead behind Max (layered with his matte), cover lines on both sides
+        # warm red cover stock, a huge serif masthead behind the presenter (layered with their matte), cover lines on both sides
         # outside his face box, issue number + barcode in the corner. Neutral words only (no brand / creator names).
         mg = paper(tone=(214, 66, 44), seed=143, grain=6, blotch=9)
         d = ImageDraw.Draw(mg)
@@ -316,8 +316,8 @@ class Styles:
         dn.text((10 + serif(200).getlength('杂'), 10), '志', font=serif(200), fill=(29, 86, 214))
         self.mag_name = halo_img(nm.crop(nm.getbbox()), color=(252, 250, 244), radius=16, strength=0.55)
         self.mag_meta = text_img('封面  ·  特稿', font('Medium', 24), (94, 90, 83), tracking=3)
-        # launch (2026-09-27 Max: learn from Apple keynotes): pure black -> dark grey stage, a giant screen far behind
-        # glowing softly around Max, one minimal title (colour-gradient word + light word), soft rim light, slow push-in
+        # launch (2026-09-27 user feedback: learn from Apple keynotes): pure black -> dark grey stage, a giant screen far behind
+        # glowing softly around the presenter, one minimal title (colour-gradient word + light word), soft rim light, slow push-in
         r = np.sqrt(((xx - 540) / 820) ** 2 + ((yy - 1250) / 1250) ** 2)
         stage = np.clip(1 - r, 0, 1)[..., None] ** 1.6 * (np.array([38, 38, 42], np.float32) / 255)
         scr = rounded_mask(60, 300, 960, 900, 28)
@@ -431,7 +431,7 @@ class Styles:
         P, a = ctx['P'], ctx['a']
         out = self.collage_bg.copy()
         paste_rgba(out, self.collage_back, 0, 0)
-        # Max as a sticker: white border + soft shadow
+        # the presenter as a sticker: white border + soft shadow
         ring = cv2.GaussianBlur(dilate(a, 16), (0, 0), 1.2)
         darken(out, soft_shadow(ring, blur=14, alpha=0.32, dx=8, dy=12))
         out = out * (1 - ring[..., None]) + ring[..., None] * np.array([1.0, 0.992, 0.972], np.float32)
@@ -492,7 +492,7 @@ class Styles:
     def launch(self, ctx, with_name=True):
         P, a = ctx['P'], ctx['a']
         t = ctx['t']
-        # slow push-in: the stage / screen 1.00 -> 1.05, Max 1.00 -> 1.015 (reads as the camera creeping in)
+        # slow push-in: the stage / screen 1.00 -> 1.05, the presenter 1.00 -> 1.015 (reads as the camera creeping in)
         u = e_io(prog(t, NAME_T0['launch'] - 0.1, NAME_T0['launch'] + 1.0))
         sb, sp = 1.0 + 0.05 * u, 1.0 + 0.015 * u
         bg = self.launch_bg if sb == 1.0 else warp_affine(self.launch_bg, scale_about(sb, 540, 760), border=cv2.BORDER_REPLICATE, interp=cv2.INTER_LINEAR)
@@ -518,7 +518,7 @@ class Styles:
         P, a = ctx['P'], ctx['a']
         out = self.paper_bg.copy()
         rng = np.random.default_rng(7)
-        # highlighter swash behind the shoulder + ink outline around Max
+        # highlighter swash behind the shoulder + ink outline around the presenter
         hl = np.zeros((H, W), np.float32)
         cv2.line(hl, (60, 1180), (1020, 1060), 1.0, 70)
         hl = cv2.GaussianBlur(hl, (0, 0), 3) * 0.75
@@ -536,7 +536,7 @@ class Styles:
         P, a = ctx['P'], ctx['a']
         c = self.card
         rgb, al = affine_elem(c, scale=0.9, rot=6, cx=250, cy=468)
-        # card floats in the room behind Max's head, never on his face
+        # card floats in the room behind the presenter's head, never on their face
         over_pm(out, rgb * (1 - a[..., None]), al * (1 - a))
         for (cx, cy, r, col) in ((905, 360, 40, (255, 214, 120)), (960, 470, 22, (238, 244, 252))):
             yy, xx = np.ogrid[0:H, 0:W]

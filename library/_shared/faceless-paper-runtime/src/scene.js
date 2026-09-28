@@ -1,7 +1,7 @@
 'use strict';
 /* ==========================================================================
    「快速提升剪辑网感的四件事」· 纸本手绘 faceless demo, 1080x1920 @ 30 fps.
-   Every time below is read from Max's own voice (timing.json: syllable onsets of 口播.m4a),
+   Every time below is read from the presenter's own voice (timing.json: syllable onsets of 口播.m4a),
    through A()/endOf()/slots(); nothing is typed in by hand.
    Layers: sheets (paper + ink) -> chapter cards / step tags -> pen -> subtitle (screen space).
    ========================================================================== */

@@ -1,11 +1,11 @@
-"""Shot 14 (v2 1:20.10-1:37.90, frames 2403..2936): 14a card table (Max behind a cutting-mat table, style cards
+"""Shot 14 (v2 1:20.10-1:37.90, frames 2403..2936): 14a card table (the presenter behind a cutting-mat table, style cards
 dealt like poker, one picked), 14b collage style brushed down over the live frame.
 
-14a revision after Max's note on the storyboard ("像我的人头被砍掉"): Max is scaled 0.85 (shoulders nearly
+14a revision after user feedback on the storyboard ("像我的人头被砍掉"): the presenter is scaled 0.85 (shoulders nearly
 full width, was 0.62), the table's far edge sits at his chest / the hand holding the mic (source y 1320, was
 the collarbone line), the edge has a rim highlight + bevel line (thickness), his torso gets an occlusion
 shade just above the edge and the mat gets his contact shadow just below it, cards are dealt on the mat in
-front of him, the room behind stays blurred (clean plate, no ghost of Max).
+front of him, the room behind stays blurred (clean plate, no ghost of the presenter).
 """
 import math
 from pathlib import Path
@@ -35,14 +35,14 @@ T = dict(
 )
 
 # ------------------------------------------------------------------ 14a layout
-S_P = 0.85                                    # Max scale behind the table
+S_P = 0.85                                    # presenter scale behind the table
 FACE_CX_SRC = 530.0                           # median face centre x in segment 14 (source px)
 OX = 575.0 - FACE_CX_SRC * S_P                # face centre on screen x = 575 (room for the picked card on the left)
 OY = 100.0 - 210.0 * S_P                      # hair top (source y ~210) at screen y ~100
-EDGE_SRC_Y = 1320                             # table far edge at Max's chest / mic hand (source y)
+EDGE_SRC_Y = 1320                             # table far edge at the presenter's chest / mic hand (source y)
 Y_EDGE = OY + EDGE_SRC_Y * S_P                # ~1043 on screen
 M_PERSON = np.float32([[S_P, 0, OX], [0, S_P, OY]])
-BG_S = 0.96                                   # room plate scale (parallax: moves less than Max)
+BG_S = 0.96                                   # room plate scale (parallax: moves less than the presenter)
 BG_BLUR = 16
 BG_DIM = 0.86
 
@@ -99,7 +99,7 @@ def cutting_mat_tex():
         d.line((x, 0, x, 18 if x % 100 else 34), fill=(210, 230, 215, 255), width=3)
     a = np.asarray(tex, np.float32).copy()
     yy = np.linspace(0, 1, TH, dtype=np.float32)[:, None, None]
-    a[..., :3] *= 1.05 - 0.30 * yy ** 1.2          # lit near Max, falling off toward the camera
+    a[..., :3] *= 1.05 - 0.30 * yy ** 1.2          # lit near the presenter, falling off toward the camera
     return np.clip(a, 0, 255).astype(np.uint8)
 
 
@@ -239,7 +239,7 @@ class Shot14:
             if sig > 0.3:
                 bg = cv2.GaussianBlur(bg, (0, 0), sig)
             canvas = bg * lerp(1.0, BG_DIM, L)
-        # Max: premultiplied foreground, frame-edge feather (the source crop ends at his arms)
+        # presenter: premultiplied foreground, frame-edge feather (the source crop ends at his arms)
         P, a = self.host.premult(src_u8, matte_u8)
         ramp = np.clip(np.minimum(np.arange(W), W - 1 - np.arange(W)) / 14.0, 0, 1).astype(np.float32)[None, :]
         shade = (1 - 0.14 * np.clip(1 - np.minimum(np.arange(W), W - 1 - np.arange(W)) / 60.0, 0, 1)).astype(np.float32)[None, :]
@@ -266,7 +266,7 @@ class Shot14:
     def table_layer(self, t, drop, aw, qa):
         tab = self.table_pm.copy()
         ye = Y_EDGE
-        # contact shadow of Max's body on the mat, just in front of the far edge (from the body's width at the edge)
+        # contact shadow of the presenter's body on the mat, just in front of the far edge (from the body's width at the edge)
         row0 = int(round(Y_EDGE + drop)) - 10
         if 0 <= row0 < H - 1:
             cover = aw[max(0, row0 - 6):row0].mean(0) if row0 > 6 else aw[row0]
@@ -387,7 +387,7 @@ class Shot14:
         cv2.fillConvexPoly(m, sh.astype(np.int32), 1.0)
         darken(canvas, cv2.GaussianBlur(m, (0, 0), 7) * 0.38 * u)
         rgb, a = warp_card(self.cards[0], quad)
-        # drop shadow behind the lifted card (on Max / the room)
+        # drop shadow behind the lifted card (on the presenter / the room)
         darken(canvas, soft_shadow(a, blur=14, alpha=0.35 * u, dx=6, dy=10))
         over_pm(canvas, rgb * (1 - ring_on), a * (1 - ring_on))
         if ring_on > 0:
@@ -416,7 +416,7 @@ def badge_ok(s=104):
     return b
 
 
-# ====================================================================== 14b: the collage style brushed down over Max
+# ====================================================================== 14b: the collage style brushed down over the presenter
 TB0 = T['yi']                                  # brush leaves the top on 「以这个风格为标准」
 TB1 = T['bao']                                 # full frame packaged on 「包装」 (words_v2 keyword table)
 EXIT0, EXIT1 = 2927, 2936                      # cross-fade back to the untouched frame; frame 2936 is raw
@@ -627,7 +627,7 @@ class Brush:
             cx = lerp(W + 20, self.chip_x, slide)
             paste_rgba(out, self.chip, cx, cy)
             boxes['brush_chip'] = [int(cx) + 8, int(cy) + 8, int(cx) + self.chip.width - 8, int(cy) + self.chip.height - 8]
-        # exit: the packaged layer fades off, the last frame is Max's untouched frame
+        # exit: the packaged layer fades off, the last frame is the presenter's untouched frame
         if k >= EXIT0:
             x = e_io(prog(k, EXIT0 - 1, EXIT1))
             out = out * (1 - x) + raw * x

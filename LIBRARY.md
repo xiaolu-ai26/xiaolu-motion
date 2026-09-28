@@ -61,7 +61,7 @@ Claude 自主创作的 60 秒短片，代码驱动画面与配乐，可视化"AI
 | 落字 (falling-text) | [![](library/falling-text/thumb.jpg)](library/falling-text/preview.mp4) | 选中的字从排行榜位置飞向屏幕中心，撞击瞬间渐变色+冲击环+全片最重的运动模糊 | 表现"计算结果终于落地"的高潮时刻 | `library/falling-text/src/s910.js`（场景 S9） | 《在我开口之前》 |
 | 现场制造蒙太奇 (live-montage) | [![](library/live-montage/thumb.jpg)](library/live-montage/preview.mp4) | 剩余每个字逐个生成，每次重放 7 种视觉母题之一（刀光/热力条/星轨/弧扇/隧道/闪烁网格/概率柱），结尾盖红色印章 | 表现"同一个生成过程对后续每个字都重来一遍"，適合总结/回顾蒙太奇 | `library/live-montage/src/s910.js`（场景 S10） | 《在我开口之前》 |
 
-后期与配乐已经从这部短片里泛化出去、不在上面 10 条目里重复：子帧运动模糊 + 双半径辉光 + 颗粒见 `engine/post.js`（逐主体的运动模糊辅助函数 `blurRing()` 见 `engine/core.js`）；代码合成配乐见 `audio/xlaudio/`（`audio/README.md` 有完整说明）。
+后期与配乐已经从这部短片里泛化出去、不在上面 10 条目里重复：子帧运动模糊 + 双半径辉光 + 颗粒见 `engine/post.js`（逐主体的运动模糊辅助函数 `blurRing()` 见 `engine/core.js`）；代码合成配乐见 `audio/xlaudio/`（`audio/README.md` 有完整说明）；"粒子聚成文字"这个具体效果（采样文字轮廓 + 粒子飞向采样点）还没有做成任何一条 `library/` 演示,做法和伪代码见 `references/director.md`,可复用函数是 `engine/particles.js` 的 `textPoints()` + `converge()`。
 
 ## 全局组件
 

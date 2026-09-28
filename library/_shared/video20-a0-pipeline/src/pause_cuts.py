@@ -1,4 +1,4 @@
-"""Pause-tightening cut list on the v2 timeline (Max 2026-09-27: 「没有完全把我的口播的一些气口…停顿…剪掉，显得有一点拖沓」).
+"""Pause-tightening cut list on the v2 timeline (user feedback 2026-09-27: 「没有完全把我的口播的一些气口…停顿…剪掉，显得有一点拖沓」).
 Deviation from the SOP (no patching of a finished cut) accepted by the coordinator for budget reasons; this list is the
 reproducible authority for the v2 candidates.
 

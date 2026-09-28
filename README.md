@@ -19,14 +19,14 @@
 
 | 路径 | 内容 |
 |---|---|
-| `SKILL.md` | 给 Agent 看的导演工作流:四步流程、固定规则(纸条字幕/人物不消失/不压脸不压嘴等)、剪辑技术(删停顿/变速)、性能与稳定性规则、QA 门禁清单 |
+| `SKILL.md` | 给 Agent 看的导演工作流入口:四步流程、固定规则(纸条字幕/人物不消失/不压脸不压嘴等),细节指针见 `references/`(剪辑技术、性能与稳定性、QA 门禁、导演方法等) |
 | `library/` | 动效镜头库,见 [`LIBRARY.md`](LIBRARY.md) 总表;每条含 `src/`(参考实现)、`preview.mp4`、`thumb.jpg`、`README.md` |
 | `engine/` | 浏览器内渲染内核(ES module):`core.js` 缓动/弹簧/哈希/噪声/颜色,`text.js` 中文逐字排版与聚焦入场,`particles.js` 火花与浮尘,`post.js` WebGL2 后期(子帧运动模糊、双半径辉光、暗角、闪白、色散、颗粒,透明/不透明两种输出),`runtime.js` `renderFrame(t)`、分层、视差、bbox,`fonts.js` FontFace(ArrayBuffer) 注入 |
 | `components/` | 参数化组件:`kinetic_keyword`(关键词逐字聚焦+高亮底)、`chapter_tag`(章节标签+HUD 进度)、`token_cut`(切刀扫描全遮罩转场)、`ip_intro`(IP 固定开场,默认占位素材——见下文"换成你自己的") |
 | `styles/` | 令牌:`base.json`(模板,列全部键)、`coldlight.json`(冷光)、`paperwhite.json`(纸白)、`scrapbook.json`(拼贴手账)、`kepu-explainer.json`(科普讲解)、`paper-handdrawn.json`(纸本手绘) |
 | `timeline/` | `schema.json` + `SCHEMA.md`、`resolve.py`(校验+词锚解析+扁平 sfx)、`validate.py`、`words.py`(ASR → words.json)、`anchors.py`、`dump_specs.mjs` |
 | `render/` | `python3 -m render …`:并行出透明层(ProRes 4444/HEVC-alpha)、分层合成、镜头表达式、字体解析、alpha 探针 |
-| `qa/` | 门禁:`check.py`(精确 bbox)、`pixel_qa.py`(任意成片,Apple Vision 人脸/文字/卡片检测)、`alpha_selftest.py`、`camera_selftest.py`、`contact_sheet.py`、`token_switch.py`、`safe_zones.json`。Vision 探测已做分块+`autoreleasepool`,长视频不会把内存吃爆(见 `SKILL.md` 性能规则) |
+| `qa/` | 门禁:`check.py`(精确 bbox)、`pixel_qa.py`(任意成片,Apple Vision 人脸/文字/卡片检测)、`alpha_selftest.py`、`camera_selftest.py`、`contact_sheet.py`、`token_switch.py`、`safe_zones.json`。Vision 探测已做分块+`autoreleasepool`,长视频不会把内存吃爆(见 `references/performance.md`) |
 | `scripts/` | `get_fonts.sh`(下载/校验开源字体)、`with_heavy_lock.py`(全机重任务并发锁,最多两个、内存告急自动停) |
 | `examples/minimal/` | 开箱即用的最小示例:合成渐变底片(无真人素材),干净 clone 直接能跑通 |
 
@@ -53,7 +53,7 @@ python3 scripts/with_heavy_lock.py -- \
    - 按层渲染:`layer: behind` 的镜头出 `overlay_behind.mov`,`front`(默认,含转场)出 `overlay_front.mov`。
 3. **分层合成**(`render/composite.py`,一次 ffmpeg):L0 底片 → L1 人后图形 → L2 人像(底片 × 灰度遮罩)→ L3 人前图形 → L4 全局镜头(底片和遮罩在 ffmpeg 里做,图形在引擎里按 `depth` 做视差)→ L5 统一收尾(eq + 颗粒)。预乘混合写成 `bg·(1−a) + O`(`maskedmerge` + `blend=addition`,平面 RGB)。**不用** ffmpeg 自带的 `overlay=alpha=premultiplied`:实测它在 gbrp 下整体偏 16 级,半透明边缘权重也不对(见 `qa/alpha_selftest.py`)。
 4. **镜头**:`perspective … eval=frame` + 三次插值,子像素平滑。crop 的输出尺寸只在初始化时求值,crop/scale 式推近会按整像素跳。取景窗口恒为画布比例,只会等比缩放。
-5. **QA 门禁**:`qa.check`(精确 bbox)+ `qa.pixel_qa`(对成片像素复核)。任何一项命中:`final.QA_FAILED.mp4`、`BUILD_STATUS.json` = FAIL、退出码 1。规则清单见 `SKILL.md`。
+5. **QA 门禁**:`qa.check`(精确 bbox)+ `qa.pixel_qa`(对成片像素复核)。任何一项命中:`final.QA_FAILED.mp4`、`BUILD_STATUS.json` = FAIL、退出码 1。规则清单见 `references/qa.md`。
 
 ## QA
 
@@ -92,7 +92,7 @@ python3 scripts/with_heavy_lock.py -- \
 - 9:16 @60 fps 冒烟:600 帧透明层 19.7 s、合成 17 s。
 - 中间文件:10 秒示例全部产物约 15-50 MB(取决于是否转 HEVC-alpha)。
 
-全机层面的并发和内存保护见 `scripts/with_heavy_lock.py`——重任务(编码、Vision 探测、Chrome 渲染)都应该用它包起来跑,详见 `SKILL.md`。
+全机层面的并发和内存保护见 `scripts/with_heavy_lock.py`——重任务(编码、Vision 探测、Chrome 渲染)都应该用它包起来跑,详见 `references/performance.md`。
 
 ## 已知限制
 

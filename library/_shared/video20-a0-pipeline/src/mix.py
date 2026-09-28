@@ -4,10 +4,10 @@ Stems: voice master (03_locked_master/voice_master_48k.wav, -16 LUFS), the three
 -16.5 LUFS over its span, see locked_review.py), BGM bed (Jianying cache, read-only), SFX track (xlaudio render_cues).
 BGM rules (task + SOP stage 5):
   * the bed sits BGM_REL_LU under the voice's integrated loudness, measured on the bed itself (no fixed gain number);
-  * ducking is keyed ONLY from Max's voice stem (never from the inserts, whose own tracks carry voice + music):
+  * ducking is keyed ONLY from the presenter's voice stem (never from the inserts, whose own tracks carry voice + music):
     DUCK_DB with a 300 Hz-4 kHz pocket, 80 ms look-ahead, 60 ms attack, 250 ms hold, 600 ms release (xlaudio);
   * during the three inserts the bed fades out (0.30 s, ending on the cut into the insert) and fades back in
-    (0.60 s from the cut back to Max), so the demos' own sound has the room;
+    (0.60 s from the cut back to the presenter), so the demos' own sound has the room;
   * 0.25 s fade-in at 0, 1.6 s fade-out ending at the last frame.
 Master: sum -> 25 Hz high-pass -> gain -> band-limited soft clip (-3 dBFS, xlaudio) -> true-peak look-ahead limiter
 (ceiling -1.3 dBTP) iterated to -14.0 LUFS; checked with ffmpeg ebur128 (TP must read <= -1.0 dBTP, else lower the

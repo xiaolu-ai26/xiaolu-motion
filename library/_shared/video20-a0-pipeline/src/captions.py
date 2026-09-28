@@ -7,7 +7,7 @@ breaks, no 1-2 character orphan strips, product / English words and quantity wor
 [...] marks a keyword: Heavy + yellow marker block brushed left -> right starting at the keyword's first unit onset.
 
 burn = False: the hook (shot 1, its big-type labels carry the sentence) and the IP intro (shot 6, the ip_intro
-component writes the sentence itself); the three inserts have no Max speech. A3's subtitle_owned ranges in shot 16
+component writes the sentence itself); the three inserts have no presenter speech. A3's subtitle_owned ranges in shot 16
 are applied at assembly time.
 Outputs: 04_captions/captions_v2.json, captions_v2_full.srt, captions_v2_burn.srt, captions_v2_burn.ass
 """

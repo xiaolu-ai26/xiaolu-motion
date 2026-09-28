@@ -129,7 +129,7 @@ def audio():
         M.N = N_                                              # the mix helpers work on the current programme length
         sfx, _ = M.render_sfx(p)
         sfx = sfx[:, :N_] if sfx.shape[1] >= N_ else np.hstack([sfx, np.zeros((2, N_ - sfx.shape[1]))])
-        # BGM #1 at its own speed; ducking keyed by Max's voice only; bed silent during the (moved) inserts
+        # BGM #1 at its own speed; ducking keyed by the presenter's voice only; bed silent during the (moved) inserts
         bed = M.bgm_bed(M.BGM[0])[:, :N_] if True else None
         M.insert_frames_override = {k: (int(round(a / speed)), int(round(b / speed))) for k, (a, b) in ins_map.items()}
         b, binfo = place_bgm_cut(M, bed, voice_key, M.insert_frames_override)

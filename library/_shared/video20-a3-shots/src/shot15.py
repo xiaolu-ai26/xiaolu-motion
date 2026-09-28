@@ -1,10 +1,10 @@
-"""Shot 15 - STEP 3 分镜脚本: a film strip on a light table; the current gate is always Max's live footage.
+"""Shot 15 - STEP 3 分镜脚本: a film strip on a light table; the current gate is always the presenter's live footage.
 
 v2 1:37.90-1:53.13 = v2 frames [2937, 3394) = source frames 5151..5607 (cut-plan segment 16, one continuous take).
 Storyboard v2 row 15 + shot15.png (same kit: render_v2.film_strip look, 405x720 gate with a yellow frame,
 「实拍 · 正在说」 pill, yellow 转场 arrow, green 音效 wave, sb_lib.stamp).
 
-World model: world units = screen pixels at rest. The gate (Max's live frame) is fixed at the world origin; the
+World model: world units = screen pixels at rest. The gate (the presenter's live frame) is fixed at the world origin; the
 film strip slides under it along world x (slot pitch 360). The camera maps world -> screen:
   rest       : scale 1 (Phase B pushes slowly to 1.025), rotated 4 deg clockwise, gate centre at (540, 870)
   full screen: scale 1080/405, no rotation, gate video exactly on the 1080x1920 screen (= the untouched frame)
@@ -329,7 +329,7 @@ class Renderer:
         self.stamp = premul(stamp('确认', s=230, color=RED, rot=-12))
         self.lights = light_times()
 
-    # -------------------------------------------------------------- gate (Max's live frame)
+    # -------------------------------------------------------------- gate (the presenter's live frame)
     def gate_image(self, src, cam_s, p_intro):
         """gate at its drawing resolution: (premul image, px per world unit). Border + rounded video + REC pill."""
         s = cam_s                                   # draw at screen scale: one image px = one screen px
@@ -348,7 +348,7 @@ class Renderer:
         return np.clip(out * 255 + 0.5, 0, 255).astype(np.uint8), s, b
 
     def face_screen(self, fi, cam, lift_gate=0.0):
-        """Max's face / lips boxes mapped into the gate on screen (for QA), or the source boxes when full screen"""
+        """The presenter's face / lips boxes mapped into the gate on screen (for QA), or the source boxes when full screen"""
         f = src_frame(fi)
         fb, lb = self.faces.face(f), self.faces.lips(f)
         if cam is None:
@@ -603,7 +603,7 @@ ALLOW = {('tag_transition', 'arrow'), ('tag_sound', 'wave')}
 
 
 def intended(t):
-    return set()                                    # nothing may touch Max's face inside the gate
+    return set()                                    # nothing may touch the presenter's face inside the gate
 
 
 def all_texts():
@@ -614,7 +614,7 @@ def all_texts():
 def meta(pr, sha):
     lt = light_times()
     return dict(
-        shot='15', owner='A3「视频20·分镜胶片与自检镜」', title='镜 15 · STEP 3 分镜脚本：灯箱胶片，当前格一直是 Max 实拍',
+        shot='15', owner='A3「视频20·分镜胶片与自检镜」', title='镜 15 · STEP 3 分镜脚本：灯箱胶片，当前格一直是出镜者实拍',
         v2_frames=[F0, F1], v2_seconds=[round(F0 / FPS, 3), round(F1 / FPS, 3)], v2_timecode=[fmt(F0 / FPS), fmt(F1 / FPS)],
         frame_range_note='[first, last+1) in v2 frames, 30 fps; source frames via timeline.v2_to_src',
         source=dict(file=str(SRC_MOV), frames=[SRC0, SRC0 + F1 - F0 - 1], mapping='timeline.v2_to_src: cut-plan segment 16, '
@@ -623,7 +623,7 @@ def meta(pr, sha):
         clean_head=dict(until=fmt(E['pull0']), note='首帧起到「在这个步骤」都是原画面全屏'),
         clean_tail=dict(from_=fmt(E['push1']), note='推回全屏后到末帧都是原画面'),
         subtitle_owned=[], no_max_ranges=[],
-        max_presence='全程有实拍：拉远后 Max 在胶片当前格里（屏上宽 405-415 px，比右下框 324 px 大），开头结尾全屏',
+        max_presence='全程有实拍：拉远后出镜者在胶片当前格里（屏上宽 405-415 px，比右下框 324 px 大），开头结尾全屏',
         camera=dict(pull_out=[round(E['pull0'], 3), round(E['pull1'], 3)], push_in=[round(E['push0'], 3), round(E['push1'], 3)],
                     rest='scale 1 -> 1.025 (hold), rotated 4 deg clockwise, gate centre (540, 870)',
                     full='scale 1080/405, gate video exactly on the screen'),

@@ -82,7 +82,7 @@ SFX = [
     # 20
     dict(id='pop_soft', t=156.93, gain_db=-4, note='镜20 点赞'), dict(id='pop_soft', t=157.30, gain_db=-4, pitch=2, note='镜20 收藏'),
     dict(id='pop_soft', t=157.73, gain_db=-4, pitch=4, note='镜20 评论'), dict(id='pop_soft', t=158.24, gain_db=-4, pitch=7, note='镜20 关注'),
-    dict(id='ident_hop', t=160.82, gain_db=-4, align='anchor', note='镜20 片尾标识音（候选「小鹿跳」，待 Max 定）= 眨眼大头贴落定'),
+    dict(id='ident_hop', t=160.82, gain_db=-4, align='anchor', note='镜20 片尾标识音（候选「小鹿跳」，待用户定）= 眨眼大头贴落定'),
 ]
 
 
@@ -116,7 +116,7 @@ def speed_lines_layer(x, y, n=5, length=120, gap=22, lw=6, ang=200, color=INK, a
     return lay
 
 
-# ================================================================== shot 1: hook + six flashing cards, Max in the PiP
+# ================================================================== shot 1: hook + six flashing cards, the presenter in the PiP
 S1_CARDS = [  # (asset, rot, centre, tall, lands at)
     ('vlog_9.60.png', -15, (330, 1270), True, 0.61), ('kepu_20.00.png', -12, (290, 860), True, 0.84),
     ('faceless_20.00.png', -6, (215, 1060), True, 1.07), ('card01_2.9.png', 9, (660, 860), False, 1.24),
@@ -161,7 +161,7 @@ def s01(f, base):
     if f >= T(0.61):
         cv.layer(speed_lines_layer(70, 700, n=4, length=110, ang=190), 'speed1', kind='fx')
         cv.layer(speed_lines_layer(80, 1300, n=3, length=90, ang=170), 'speed2', kind='fx')
-    # Max: full -> PiP (0.30-0.75 s), PiP -> full (1.95-2.40 s)
+    # presenter: full -> PiP (0.30-0.75 s), PiP -> full (1.95-2.40 s)
     if t < 0.30:
         p = 0.0
     elif t < 1.95:
@@ -223,7 +223,7 @@ def s_insert(kind):
 import timeline as T_  # noqa: E402
 
 
-# ================================================================== 2a / 2b / 2c: Max full screen (keyword in the strip)
+# ================================================================== 2a / 2b / 2c: the presenter full screen (keyword in the strip)
 def s_plain(f, base):
     return Canvas(base)
 
@@ -420,7 +420,7 @@ def s12(f, base):
     return cv
 
 
-# ================================================================== shot 17: recap (three demo clips as cards), Max in the PiP, 「4 步」
+# ================================================================== shot 17: recap (three demo clips as cards), the presenter in the PiP, 「4 步」
 RECAP = [('vlog', 26.40, 133.08, (-9, 270, 800)), ('kepu', 25.90, 133.58, (6, 350, 810)), ('faceless', 28.90, 134.08, (-3, 320, 800))]
 
 
@@ -543,7 +543,7 @@ def s19(f, base):
     return cv
 
 
-# ================================================================== shot 20: Max as a taped photo, four icons, wink sticker
+# ================================================================== shot 20: the presenter as a taped photo, four icons, wink sticker
 def live_photo_img(rgb, scale=0.66, rot=1.5):
     s = Image.fromarray(rgb).convert('RGBA')
     w, h = int(W * scale), int(H * scale)

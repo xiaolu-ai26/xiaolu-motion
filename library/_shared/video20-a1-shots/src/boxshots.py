@@ -1,4 +1,4 @@
-"""Shots 10 (full-screen paper box, two parts) and 11 (the closed box tossed to 'your Agent' on Max's live frame).
+"""Shots 10 (full-screen paper box, two parts) and 11 (the closed box tossed to 'your Agent' on the presenter's live frame).
 
 Geometry, colours, labels and contents are the storyboard's own (v2_parts.py = verbatim render_v2.py parts:
 shot10a / shot10b / shot11); this module animates them.
@@ -59,19 +59,19 @@ class Shot10:
 
     words (v2 s, 04_captions/words_v2.json manual anchors): 同 51.00, 做出来的 51.81-52.46, 它其实就是一个开源的
     52.94-54.50, 动效库 54.68, 音效库 55.64, 风格包 56.91 (包 ends 57.40).
-    ① 1522-1576: the dotted paper page slides up over Max (1522-1529); the vlog / 科普 / 不露脸 frames (§0.1: vlog
+    ① 1522-1576: the dotted paper page slides up over the presenter (1522-1529); the vlog / 科普 / 不露脸 frames (§0.1: vlog
        24.00 s, kepu 1.20 s, faceless 21.80 s) fly in from left / top / right along dashed trails and drop into one
        kraft box (sample shot10a); flaps close, tape seals it (clack 1563 = 52.10); page slides away (1570-1576) and
-       Max is back for 它其实就是一个开源的.
+       the presenter is back for 它其实就是一个开源的.
     ② 1633-1726: on 的 of 开源的 the page slides up again with the closed box (1633-1638); it squashes (1638-1639)
        and pops open on 动效库 into the three-tray toolbox of sample shot10b (1640), lid swings back; 动效库 1641 /
        音效库 1669 / 风格包 1707 light up (tray glow, contents rise, label gets its yellow marker); page slides away
        1720-1726.
-    Max's live footage is fully covered 1530-1569 (1.33 s) and 1639-1719 (2.70 s): each <= 3 s.
+    The presenter's live footage is fully covered 1530-1569 (1.33 s) and 1639-1719 (2.70 s): each <= 3 s.
     """
     key, F0, F1 = '10', 1490, 1730
     IN1, OUT1 = (1522, 8), (1570, 7)          # (first frame of motion, frames of motion)
-    IN2, OUT2 = (1633, 6), (1720, 7)          # ② starts on 的 (54.50): Max stays on screen for 它其实就是一个开源
+    IN2, OUT2 = (1633, 6), (1720, 7)          # ② starts on 的 (54.50): the presenter stays on screen for 它其实就是一个开源
     # name, asset, label, start centre, hover centre (sample 10a), sample rot, first frame, slot
     MINIS = [
         ('vlog', 'mini_vlog', 'vlog', (-240, 640), (190, 672), -18, 1530, 0),
@@ -424,9 +424,9 @@ def lerp(a, b, t):
 
 # ================================================================ shot 11
 class Shot11:
-    """你只要把我这个skill丢给你的agent就可以直接来使用  (v2 57.67-61.67), Max full frame throughout.
+    """你只要把我这个skill丢给你的agent就可以直接来使用  (v2 57.67-61.67), the presenter full frame throughout.
 
-    skill 58.78 (1763): the closed 开源工具 box pops out right of Max's face;  the 你的 Agent chip slides in top right
+    skill 58.78 (1763): the closed 开源工具 box pops out right of the presenter's face;  the 你的 Agent chip slides in top right
     (1765-1771);  丢给 59.24 (1777): the box is tossed up along the right edge (dashed trail) and lands in the chip at
     1791 (Agent 59.72);  直接来使用 60.46 (1814): 接收中… -> 已就绪 + green tick;  1830-1838 chip leaves, clean after.
     The box stays right of the face box + 12 px while level with the face, and above the hair when it crosses left.

@@ -1,4 +1,4 @@
-"""Shot 13 (v2 1:05.73-1:20.10, frames 1972..2402): full-screen chat on the dotted input-box paper, Max in the
+"""Shot 13 (v2 1:05.73-1:20.10, frames 1972..2402): full-screen chat on the dotted input-box paper, the presenter in the
 bottom-right PiP. Same components as storyboard shot13a/13b (render_v2 chat_bubble / attach_chip / chat_input /
 ime_bar / chat_header, sb_lib stamp / pip_card), animated on the words of words_v2.json:
 
@@ -13,7 +13,7 @@ ime_bar / chat_header, sb_lib stamp / pip_card), animated on the words of words_
 
 The step-bar band y 180-280 stays empty; the subtitle band y 1300-1440 stays empty.
 PiP in / out: the whole frame shrinks into the box (and grows back) in 15 frames; frame 1972 and frame 2402
-are Max's untouched frames.
+are the presenter's untouched frames.
 """
 import math
 
@@ -294,7 +294,7 @@ class Shot13:
         qa.setdefault('boxes', {})['pip'] = [int(Dx - b), int(Dy - b - 22 * (ta > 0)), int(Dx + Dw + b), int(Dy + Dh + b)]
         qa['pip_src_rect'] = [round(sx0, 1), round(sy0, 1), round(sw, 1), round(sh, 1)]
         qa['pip_scale'] = round(kx, 4)
-        # Max's face / lips as shown inside the PiP (screen space), for the overlap QA
+        # the presenter's face / lips as shown inside the PiP (screen space), for the overlap QA
         self._pip_map = (Dx, Dy, sx0, sy0, kx)
 
     # ---------------------------------------------------------------- chat

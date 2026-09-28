@@ -206,7 +206,7 @@ def pip_layer(rgb, p, region, card_alpha=None):
         out.alpha_composite(sh, (PIP_BOX[0] - pad + 3, PIP_BOX[1] - 22 - pad + 7))
         out.alpha_composite(c2, (PIP_BOX[0], PIP_BOX[1] - 22))
     out.alpha_composite(lay)
-    # the face of Max inside the moved frame (for QA): map the full-frame face box
+    # the presenter's face inside the moved frame (for QA): map the full-frame face box
     return out, (s, tx, ty)
 
 

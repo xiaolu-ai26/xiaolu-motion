@@ -1,13 +1,13 @@
-"""Shot 16 - STEP 4 剪辑成片: the self-check is played directly on Max's live full-screen frame.
+"""Shot 16 - STEP 4 剪辑成片: the self-check is played directly on the presenter's live full-screen frame.
 
 v2 1:53.13-2:12.23 = v2 frames [3394, 3967) = source frames 5672..6244 (cut-plan segment 17, one continuous take).
 Storyboard v2 row 16 + shot16a.png / shot16b.png (same drawing kit: sb_lib subtitle_c / label / sticker_outline,
-render_v2 pill / badge / hud_brackets / check_chip). Max's picture is never retimed: frame n = timeline.v2_to_src(n).
+render_v2 pill / badge / hud_brackets / check_chip). The presenter's picture is never retimed: frame n = timeline.v2_to_src(n).
 
 Order (storyboard): cut line -> keyword sticker + sound-wave badge -> red scan line -> caption deliberately on the
 mouth, red box + cross, 压到脸 above, green dashed safe band below -> caption slides into the band, box turns green,
 已挪到安全区 -> 挡住字幕: a sticker lands on the caption, the box flashes red, the sticker is pushed away ->
-Agent就会自己去重新做一遍 (Max 2026-09-27: the 0.5 s rewind was too fast to read): a redo card beside his head plays
+Agent就会自己去重新做一遍 (user feedback 2026-09-27: the 0.5 s rewind was too fast to read): a redo card beside his head plays
 压到脸 thumbnail -> spinning loop arrow 重新生成中 + progress 0-100% -> green 自检通过, then leaves before the last frame.
 Captions drawn here (SUB_OWNED) use the exact C strip of sb_lib.subtitle_c; everywhere else A0 draws the captions.
 """
@@ -455,7 +455,7 @@ class Renderer:
     # -------------------------------------------------------------- 自己重做 card
     THUMB_H = 124
     CARD_W, CARD_H = 360, 124 + 130
-    # right of / above Max's head: the face box top is >= 607 px in frames 3898-3963, the step bar ends at 280;
+    # right of / above the presenter's head: the face box top is >= 607 px in frames 3898-3963, the step bar ends at 280;
     # with the tape and the 4 % pop overshoot the card spans y 288-576
     CARD_X, CARD_Y = W - 16 - 360, 316
 
@@ -641,7 +641,7 @@ def all_texts():
 def meta(pr, sha):
     so = SUB_OWNED
     return dict(
-        shot='16', owner='A3「视频20·分镜胶片与自检镜」', title='镜 16 · STEP 4 剪辑成片：自检直接做在 Max 全屏实拍上',
+        shot='16', owner='A3「视频20·分镜胶片与自检镜」', title='镜 16 · STEP 4 剪辑成片：自检直接做在出镜者全屏实拍上',
         v2_frames=[F0, F1], v2_seconds=[round(F0 / FPS, 3), round(F1 / FPS, 3)], v2_timecode=[fmt(F0 / FPS), fmt(F1 / FPS)],
         frame_range_note='[first, last+1) in v2 frames, 30 fps; source frames via timeline.v2_to_src',
         source=dict(file=str(SRC_MOV), frames=[SRC0, SRC0 + F1 - F0 - 1], mapping='timeline.v2_to_src: cut-plan segment 17, '
@@ -671,7 +671,7 @@ def meta(pr, sha):
         sha256=sha,
         notes=['步骤条（y 196-260）由 A0 画；本镜 y 180-280 不放任何元素，状态条在 y 290-341。',
                '扫描线（2:03.36 起 0.75 s）是整幅宽的细红线，从脸上扫过；字幕压嘴、红框是分镜设计的一部分，qa.json 的 intended_face_contact 列了帧号。',
-               '2026-09-27 按 Max 反馈改结尾：「重新做一遍」原来的 0.5 s 倒带换成重做小卡（压到脸缩略 → 重新生成中 + 进度条 → 自检通过），每个状态 ≥ 0.4 s，卡上字 40 px。',
+               '2026-09-27 按用户反馈改结尾：「重新做一遍」原来的 0.5 s 倒带换成重做小卡（压到脸缩略 → 重新生成中 + 进度条 → 自检通过），每个状态 ≥ 0.4 s，卡上字 40 px。',
                '分镜写的 snip 音效在 xiaolu-motion 音效库里没有，sfx.json 用 laser_zip。'],
     )
 

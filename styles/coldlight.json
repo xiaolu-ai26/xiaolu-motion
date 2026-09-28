@@ -2,7 +2,7 @@
   "name": "coldlight",
   "version": "0.1",
   "extends": "base",
-  "description": "冷光：取自《在我开口之前》前半段的冷色系（近黑蓝底、冰青强调、紫靛辅色、暖白正文）。仅作可插拔示例，不代表 Max 已拍板的品牌风格。",
+  "description": "冷光：取自《在我开口之前》前半段的冷色系（近黑蓝底、冰青强调、紫靛辅色、暖白正文）。仅作可插拔示例，不代表用户已拍板的品牌风格。",
   "source": "在我开口之前_Claude自由创作/源码/画面/src/core.js COL（bg #05070C, bgGlow #0B1222, text #ECE9E2, text2 #7C8698, cyan #6EE7F5, iceX #E6FBFF, violet #8E7DFF, card #0C121D, stroke #2A3346, hair #1B2230）",
   "colors": {
     "bg": "#05070C",

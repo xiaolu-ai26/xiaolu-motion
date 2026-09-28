@@ -3,6 +3,6 @@ __pycache__/
 *.nbi
 *.nbc
 .pytest_cache/
-# rendered audio is reproducible from code; mixes may contain Max's voice and Jianying-library music
+# rendered audio is reproducible from code; mixes may contain the presenter's voice and Jianying-library music
 examples/out/*.wav
 examples/out/*_stems/

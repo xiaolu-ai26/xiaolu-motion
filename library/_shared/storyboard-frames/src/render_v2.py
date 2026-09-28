@@ -382,7 +382,7 @@ def shot18():
     f = src_of('18')
     fr = Frame(Image.new('RGBA', (W, H), (0, 0, 0, 255)), name='18')
     half = W // 2
-    # left panel: yellow paper, Max matted
+    # left panel: yellow paper, the presenter matted
     left = paper(half, H, tone=(255, 214, 10), seed=18, grain=3, blotch=4)
     fr.img.alpha_composite(left, (0, 0))
     s, fc = 0.70, face_of(f)
@@ -650,7 +650,7 @@ def shot15():
         st = rotate(st.filter(ImageFilter.GaussianBlur(3)), rot)
         st = ImageEnhance.Brightness(st).enhance(0.8)
         fr.img.alpha_composite(st, (int(W / 2 - st.width / 2 - 60), int(cy - st.height / 2)))
-    # main strip: 13a 13b (lit) | LIVE gate = Max's real footage (current, enlarged) | 14a 14b (next, unlit)
+    # main strip: 13a 13b (lit) | LIVE gate = the presenter's real footage (current, enlarged) | 14a 14b (next, unlit)
     names = ['13a', '13b', 'LIVE', '14a', '14b']
     st, boxes, (Wf, Hf, fw, fh, mg) = film_strip(names, fw=300, gap=60, margin=86, lit=('13a', '13b'), current=None,
                                                 edge_text=('STEP 3 分镜脚本  ·  镜 13 → 现在 → 镜 14', 30),
@@ -671,7 +671,7 @@ def shot15():
     P0 = 260
     big = Image.new('RGBA', (Wf + 2 * P0, Hf + 2 * P0), (0, 0, 0, 0))
     big.alpha_composite(st, (P0, P0))
-    # the gate: Max's real footage of this very moment, bigger than the strip frames (>= the PiP width)
+    # the gate: the presenter's real footage of this very moment, bigger than the strip frames (>= the PiP width)
     live = load_src(src_of('15'))
     gw, gh = 404, 718
     gate = Image.new('RGBA', (gw + 24, gh + 24), (0, 0, 0, 0))
@@ -912,7 +912,7 @@ def shot10b():
 
 
 
-# ================================================================== shot 14b: the chosen style brushes over Max
+# ================================================================== shot 14b: the chosen style brushes over the presenter
 def cutout_letters(text, size=92, seed=5):
     """ransom-note letters, each on its own paper scrap (vertical stack)"""
     rng = np.random.default_rng(seed)
@@ -1105,7 +1105,7 @@ def style_card_img(key, name, w=300, h=400, label_size=60, key_on=False):
     return c
 
 
-# ================================================================== shot 14a: cards dealt on a cutting mat, Max behind the table
+# ================================================================== shot 14a: cards dealt on a cutting mat, the presenter behind the table
 MAT = (36, 92, 70)
 
 
@@ -1178,7 +1178,7 @@ def shot14a():
     fr.items.append(('table', (0, 800, W, H), 'bg'))
     step_bar(fr, active=2, done=(1,))
     fr.add(pill('STEP 2 画面风格', size=30, bg=(20, 20, 20, 225)), 40, 1206, 'step_chip', kind='text', shadow=False)
-    # chosen card: flipped up from the empty slot, enlarged, standing beside Max, checked
+    # chosen card: flipped up from the empty slot, enlarged, standing beside the presenter, checked
     sel = style_card_img('vlog_open', '拼贴', 282, 376, label_size=52, key_on=True)
     ring = Image.new('RGBA', (sel.width + 30, sel.height + 30), (0, 0, 0, 0))
     ImageDraw.Draw(ring).rounded_rectangle((3, 3, ring.width - 4, ring.height - 4), radius=22, outline=YELLOW + (255,), width=12)

@@ -15,7 +15,7 @@
 | `components/ip_intro.js` | 组件（`id / role / params / draw / bbox / mbSamples`，与仓库其他组件同一契约） | 是 |
 | `assets/manifest.json` | 预加载清单（大头贴） | 是 |
 | `assets/stickers/{smile,surprise,wink}.png` | 透明底大头贴，保留白色模切描边（**本仓库里是占位素材，见文首说明**；真实用法是把你自己的照片处理成人像未重绘未变形的白描边卡） | 是 |
-| `assets/covers/` | 封面卡（`<key>.jpg` 450×600 + `covers.json`），Max 往期封面的裁切件 | 否（本目录 `.gitignore`） |
+| `assets/covers/` | 封面卡（`<key>.jpg` 450×600 + `covers.json`），出镜者往期封面的裁切件 | 否（本目录 `.gitignore`） |
 | `tools/cutout.py` | 蓝底卡 → 透明大头贴 | 是 |
 | `tools/prep_covers.py` | 封面原图 / 主页网格截图 → 3:4 封面卡 + `covers.json` | 是 |
 
@@ -29,7 +29,7 @@
 | `beats` | `[0.0, 0.85, 1.83]` | 词锚点，镜头内秒：每张大头贴出现的时刻，取对应音节起点前约 0.04 s |
 | `words` | `[]` | 词级时间码，镜头内秒 `[{w,s,e}]`。标题逐字跟读音出现，副标题从它首字的读音起出现 |
 | `prefix` / `name` | `我是` / `小鹿` | 大字 = prefix + name |
-| `name_color` | `#EC6E26` | 名字高亮色（取自 Max 旧版开场），副标题里 `sub_hi` 的片段同色 |
+| `name_color` | `#EC6E26` | 名字高亮色（取自出镜者旧版开场），副标题里 `sub_hi` 的片段同色 |
 | `sub` / `sub_hi` | `一个会玩AI的文科生` / `["AI"]` | 副标题及高亮片段；`sub` 为空不画 |
 | `sub_mode` | `stagger` | `stagger` 首字读音起逐字快速出齐（约 0.3 s，便于读）；`sync` 每字跟自己的读音 |
 | `covers` | 6 个 key | 依次放进 6 个位置：左上、右上、左中、右中、左下、右下；左中、右中在 `beats[1]` 滑入 |

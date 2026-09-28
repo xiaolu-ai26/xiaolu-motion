@@ -27,7 +27,7 @@ SHOTS = {'07': (831, 1065), '08': (1065, 1259), '09': (1259, 1490), '10': (1490,
 
 
 def src_frame(f):
-    """v2 frame index -> source frame index (Max footage only), via timeline.v2_to_src on the frame grid"""
+    """v2 frame index -> source frame index (presenter footage only), via timeline.v2_to_src on the frame grid"""
     kind, seg, sf = T.v2_to_src(f / FPS)
     assert kind == 'max', (f, kind)
     return sf

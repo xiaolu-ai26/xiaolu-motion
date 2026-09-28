@@ -35,7 +35,7 @@ export const params = {
   layout: { default: 'auto', type: 'enum', values: ['auto', '9x16', '3x4'], desc: '版式：auto 按画布比例选（高/宽 > 1.6 用 9x16）。' },
   out: { default: 'cut', type: 'enum', values: ['cut', 'pop'], desc: '退场：cut 硬切给下一镜（对标做法）；pop 最后 out_dur 秒整体缩小淡出。' },
   out_dur: { default: 0.2, type: 'number', min: 0.05, max: 1, desc: 'pop 退场时长。' },
-  paper: { default: '#F3EBDD', type: 'color', desc: '纸底色（取自 Max 旧版开场）。' },
+  paper: { default: '#F3EBDD', type: 'color', desc: '纸底色（取自出镜者旧版开场）。' },
   dot: { default: '#DCD0BC', type: 'color', desc: '点阵颜色。' },
   ink: { default: '#231C17', type: 'color', desc: '大字墨色。' },
   sub_color: { default: '#3A302A', type: 'color', desc: '副标题颜色。' },

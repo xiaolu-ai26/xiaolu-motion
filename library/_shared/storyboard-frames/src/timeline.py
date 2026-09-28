@@ -2,7 +2,7 @@
 "vlog" / "做科普" / "不露脸的视频".
 
 The inserts split kept segment 1 at three source frames that sit in the silence between words
-(checked on 01_transcript/source_env10ms_db.npy, see storyboard.md 0.1). Max's audio / video are not
+(checked on 01_transcript/source_env10ms_db.npy, see storyboard.md 0.1). The presenter's audio / video are not
 shortened; each insert only adds its own length, so every later time = rough time + inserted length.
 
 v2 time t -> ('max', seg, src_frame) or ('insert', key, frame_in_insert)
@@ -104,7 +104,7 @@ def fmt(t):
     return f'{int(m)}:{s:05.2f}'
 
 
-# keyframes of Max's footage, given in ROUGH time (so they survive insert-length changes)
+# keyframes of the presenter's footage, given in ROUGH time (so they survive insert-length changes)
 KEY_ROUGH = {
     '1': 2.20,         # 这样的视频 lands on the 6th flash (v1 frame time)
     '4': 12.0667,      # 开源 stamped
