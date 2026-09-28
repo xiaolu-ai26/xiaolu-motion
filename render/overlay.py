@@ -109,14 +109,15 @@ async def _render(res, faces, out, workers, mode, verbose, layer=None):
 
 
 def layer_items(res, layer):
-    """shots/transitions drawn in a compositing layer (transitions always go to 'front')"""
+    """shots/transitions drawn in a compositing layer: 'behind' | 'front' | 'invert'
+    (transitions always go to 'front'; 'invert' holds the shots resolved from `invert: true`)"""
     shots = [s for s in res["shots"] if s.get("layer", "front") == layer]
     trans = res["transitions"] if layer == "front" else []
     return shots, trans
 
 
 def render_overlay(res, out, workers=4, formats=("prores",), mode="overlay", verbose=True, layer=None):
-    """layer: 'behind' | 'front' | None (everything in one layer). Returns None if the layer is empty."""
+    """layer: 'behind' | 'front' | 'invert' | None (everything in one layer). Returns None if the layer is empty."""
     res = load_json(res) if isinstance(res, (str, Path)) else res
     if layer and not any(layer_items(res, layer)):
         return None

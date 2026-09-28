@@ -8,7 +8,8 @@ Resolution + validation in one pass (timeline/validate.py only prints the report
      to source frames; clips must not overlap on the timeline (gaps render black)
   3. words: words.json mapped onto the timeline through the clips that show its media
   4. anchors -> seconds for shot start/end, transition at, camera keyframe t, sfx at
-  5. component contract: component file exists, param names known (specs dumped with Node)
+  5. component contract: component file exists, param names known (specs dumped with Node);
+     `invert: true` needs a component that exports `invert = true` and becomes layer 'invert'
   6. sfx flattened to an absolute cue list (the audio side consumes resolved["sfx"])
 """
 import argparse
@@ -264,6 +265,15 @@ def resolve(sb_path, probe_media=True):
         check_component(s["component"], where, params, "shot")
         item = {"id": s["id"], "component": s["component"], "t0": round(t0, 4), "t1": round(t1, 4), "params": params, "z": s.get("z", k),
                 "layer": s.get("layer", "front"), "depth": float(s.get("depth", 0.0))}
+        if s.get("invert"):
+            # its own compositing pass (L3i, difference-blended over L3); downstream it is just a layer name
+            if item["layer"] == "behind":
+                rep.err(where, "invert: true cannot sit behind the person (layer 'behind'); the invert layer is composited over the front layer")
+            if specs is None:
+                rep.warn(where, f"cannot check that '{s['component']}' supports invert (component specs unavailable)")
+            elif s["component"] in specs and not specs[s["component"]].get("invert"):
+                rep.err(where, f"'{s['component']}' does not declare invert support (export const invert = true); only white-ink HUD components read correctly under the difference blend")
+            item["layer"] = "invert"
         if item["layer"] == "behind" and not has_matte:
             rep.warn(where, "layer 'behind' without a person matte on the base: it renders under nothing (same as front)")
         if dbg0 or dbg1:

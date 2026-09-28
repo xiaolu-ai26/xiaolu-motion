@@ -42,28 +42,42 @@
 
 ## 技法卡:两个具体做法
 
-### 反相混合的角标/HUD 文字(保证任何背景上都读得清)
+### 反相混合的角标/HUD 文字(已实现,但中灰底上会失效)
 
-**做法**:角标、HUD 文字(章节号、进度条标签、右上角小字这类不需要"贴纸条"背景卡的极简文字)想在任意背景亮度下都保持可读,业界常用做法是让文字颜色相对底层画面做 `difference`(或 `exclusion`)混合——白色文字落在亮背景上会自动变暗,落在暗背景上保持亮,永远和背景形成对比,不需要为每种背景单独调文字颜色。
+**做法**:角标、HUD 文字(章节号、进度条标签、右侧小字这类不带底卡的极简文字)相对底片做 `difference` 混合。白字落在亮底上变暗,落在暗底上保持亮,不用为每种背景单独调颜色。
 
-**这套引擎目前做不到这一步,原因要写清楚**:`engine/` 渲染的是完全透明的叠加层(`engine/runtime.js` 里 headless Chrome 只画组件的图形/文字,画布起手是全透明),真正的底片素材要到 `render/composite.py` 那一步才用 ffmpeg 合成上去。`difference`/`exclusion` 这类混合模式需要同时拿到"文字颜色"和"文字底下那一点底片的实际颜色"两份数据才能算,而组件的 `draw()` 阶段完全看不到底片——所以不可能靠给 `components/chapter_tag.js` 加一个参数、在 Canvas2D 里设一下 `ctx.globalCompositeOperation = 'difference'` 就实现,那样只是相对同一张透明画布内先画的其他图形做差,对最终合成到的真实底片毫无效果。
+**用法**:分镜里给镜头加 `"invert": true`。目前只有 `chapter_tag` 声明了支持(组件导出 `invert = true`),别的组件写了会在解析时报错,和 `"layer": "behind"` 同时写也报错。这类镜头单独渲成 `overlay_invert.mov`,在人前图形(L3)之后、统一收尾(L5)之前合成,所以总在人和其他图形上面。组件在这一路只画纯白墨,层级靠不透明度区分(编号和中文 1.0,英文小标和右侧小字 0.6,进度底轨 0.3),不画辉光;引擎在这一路关掉 flash、暗角和 bloom,保留 fade。普通镜头的 `chapter_tag` 输出不变。示例:`python3 -m render build examples/invert_hud/storyboard.json`(同一帧上下两个角标,上普通、下反相,底片依次是亮底、暗底、中灰、黑到白渐变)。
 
-真正要实现,需要在合成阶段(`render/composite.py`)加一条新的图层路径:现在的 `premul_over()` 统一用 `blend=all_mode=addition` 把前景图形层"加"到底片上;要支持反相混合的角标,需要一个新的 `premul_diff()` 变体,把 `blend=all_mode=addition` 换成 `blend=all_mode=difference`(或 `grainextract`),只用于打了"反相"标记的那一小块区域(角标的 bbox),其余前景图形还是走原来的加法合成——这是一处合成管线的架构改动,不是这次"只改参数/文档"的范围,先记录做法留给需要时再做:
+**公式**(W3C 可分离混合的 difference,写成预乘形式,`render/composite.py` 的 `premul_diff()`):
 
 ```
-# render/composite.py 里 premul_over() 的示意变体(伪代码,未实现)
-def premul_diff(bg, ov_rgba, out, tag):
-    # 同 premul_over 先把前景拆成 rgb / mask,
-    # 但最后一步把 blend=all_mode=addition 换成 blend=all_mode=difference
-    # 只对"反相角标"这一路前景走这个函数,其余前景仍走 premul_over
-    ...
-
-# 用法示意:分镜里把角标/HUD 这类组件标一个 invert: true,
-# render/overlay.py 渲染时把它们单独输出到 overlay_invert.mov,
-# composite.py 里对这一路用 premul_diff() 而不是 premul_over()
+out = bg·(1−a) + a·|bg − C| = bg·(1−a) + |bg·a − O|      (O = a·C,预乘 rgb)
+ffmpeg:maskedmerge(black, bg, a) 得到 bg·a,与 O 做 blend=difference,
+       再加上 maskedmerge(bg, black, a) 得到的 bg·(1−a)(blend=addition)
 ```
 
-在实现之前,角标类文字想保证可读性,退而求其次的做法(现在就能用)是沿用"纸条字幕"同一套思路:给文字一个半透明底色块或足够粗的描边(而不是无背景纯文字),用固定对比度而不是自适应对比度来保证可读,见 `SKILL.md` 固定规则里的"纸条字幕"一条。
+不透明白字 a=1 时输出就是 255−bg。a≈0 但 rgb>0 的辉光像素在这个公式下退化成加法,和普通图层一样。用随机底色加随机预乘前景(含半透明、a=0 带 rgb 的辉光像素)跑这段滤镜链,和 numpy 按公式算的结果比,最大误差 1/255。
+
+**为什么不用别的写法**:
+- 只把 `premul_over()` 最后一步的 `addition` 换成 `difference`,算出来是 |bg·(1−a) − O|。不透明白字 a=1、O=1 时恒等于 1,永远是白字,根本没有反相。
+- `grainextract`(A−B+0.5):黑底白字得 −0.5,截成 0,字直接消失。
+- `exclusion`:预乘形式下拆不开,只在 a 为 0 或 1 时成立,抗锯齿边缘会算错。
+- 在组件里设 `ctx.globalCompositeOperation = 'difference'`:引擎画的是全透明叠加层,底片到合成阶段才进来,这样只会和同一张画布上先画的图形做差。
+
+**实测**(`examples/invert_hud` 成片抽帧,文字墨迹像素与框外一圈底色的 WCAG 对比度,正文可读的常用门槛是 4.5:1):
+
+| 底色 | 普通白字 | 反相角标 |
+|---|---|---|
+| 亮底 #F0F0F0 | 1.14 | 16.8 |
+| 暗底 #101010 | 19.0 | 16.6 |
+| 中灰 #808080 | 3.95 | 1.01 |
+
+**中灰死区**:白墨反相后显示 255−bg,底色越接近中灰,字和底越接近。按灰阶值(sRGB 8 位)算,反相角标在底色 73–182 之间低于 4.5:1,88–167 之间低于 3:1,128 附近几乎看不见;普通白字在底色 ≥119 时低于 4.5:1。两者在 119–182 一段都不够,肤色、灰墙、阴天天空、浅木桌面常落在这里。所以不能说"任何背景都可读"。
+
+**什么时候用**:
+- 角标底下的亮度会变(推拉镜头、切场景、人走过),或者底片整体偏亮(白墙、白纸、亮屏幕)时用 `invert`。
+- 角标所在区域以中灰为主时不要用 `invert`,改回"纸条字幕"那套思路:给文字垫半透明底色块或够粗的描边,用固定对比度保证可读(见 `SKILL.md` 固定规则)。拿不准就先抽一帧,看角标区域的灰度是否大多落在 70–180。
+- 底片一直是暗的,普通白字已经够清楚(19:1),换成 `invert` 反而略降(16.6:1),没必要。
 
 ### 粒子聚成文字
 

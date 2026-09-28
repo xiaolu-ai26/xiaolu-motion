@@ -14,7 +14,7 @@ CHROME_ARGS = [
 
 
 def page_config(resolved, tokens, faces, mode="overlay", overrides=None, layer=None):
-    """the object handed to XM.boot(cfg); layer = 'behind' | 'front' | None (all)"""
+    """the object handed to XM.boot(cfg); layer = 'behind' | 'front' | 'invert' | None (all)"""
     return {
         "canvas": resolved["canvas"], "fps": resolved["canvas"]["fps"], "mode": mode, "tokens": tokens,
         "camera": resolved.get("camera") or None, "layer": layer,

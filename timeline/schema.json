@@ -370,6 +370,10 @@
           "minimum": 0,
           "maximum": 1.5,
           "description": "视差系数：0 屏幕锁定（HUD），1 与底片同动，中间值视差。默认 0。"
+        },
+        "invert": {
+          "type": "boolean",
+          "description": "反相混合（difference）：单独渲一层 overlay_invert.mov，在人前图形（L3）之后按 bg·(1−a)+|bg·a−O| 合成，白墨在亮底变暗、暗底保持亮。只允许声明了 invert 支持的组件（目前 chapter_tag）；不能与 layer: behind 同用。默认 false。"
         }
       }
     },

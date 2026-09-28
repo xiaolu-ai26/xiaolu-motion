@@ -71,7 +71,7 @@ Claude 自主创作的 60 秒短片，代码驱动画面与配乐，可视化"AI
 |---|---|---|---|---|---|
 | 关键词弹出 | 见 `word-cut`/`numbering` 等创意短片条目 | 逐字上浮+去模糊+淡入，错峰入场，可选高亮底 | 强调口播中的关键词 | `components/kinetic_keyword.js`（正式组件，"科技感" HUD 风格） | 《在我开口之前》（已迁移） |
 | 关键词弹出（纸质版，待整理） | 见 `flash-card-hook` 等视频20条目 | 弹跳曲线 `pop_curve()` 驱动的字符级弹入 + 胶囊标签 `label()`/`vlabel()` | 纸质手账/贴纸风格的关键词强调 | `library/_shared/paper-craft-components/src/a0lib.py`（`pop_curve`）+ `sb_lib.py`（`label`/`vlabel`） | 视频20 |
-| 章节铃 / 章节标签 | 见 `fullscreen-dialog`/`film-lightbox` 等视频20条目 | 分段 HUD 进度条 + 章节号/中英文标题，左到右擦入带扫描线 | 多章节讲解视频的进度指示 | `components/chapter_tag.js`（正式组件） | 《在我开口之前》（已迁移） |
+| 章节铃 / 章节标签 | 见 `fullscreen-dialog`/`film-lightbox` 等视频20条目 | 分段 HUD 进度条 + 章节号/中英文标题，左到右擦入带扫描线；分镜写 `invert: true` 走反相混合（亮底变暗、暗底保持亮，中灰底失效，见 `references/director.md`） | 多章节讲解视频的进度指示 | `components/chapter_tag.js`（正式组件） | 《在我开口之前》（已迁移） |
 | 步骤条（纸质版，待整理） | 见 `big-number-stepper` | 纸卡风格的步骤进度条，静态版 `step_bar()`，动画版 `step_bar_image()` | 纸质手账风格的多步骤指示 | `library/_shared/paper-craft-components/src/sb_lib.py`（`step_bar`）+ `a0lib.py`（`step_bar_image`） | 视频20 |
 | 纸条字幕（待整理） | 见任意视频20条目 | 静态几何 `subtitle_c()`；生产/动画版（马克笔描边+关键词弹出）`strip_geometry()`/`strip_image()`/`strip_state()` | 比纯文字描边字幕更耐看的"贴纸条"字幕观感 | `library/_shared/paper-craft-components/src/sb_lib.py` + `a0lib.py` | 视频20 |
 | 右下人像框（PiP，待整理） | 见 `clip-narration-pip` | 静态 `pip_crop()`/`pip_card()`/`add_pip()`；生产版（整帧变形收进画框）`pip_region()`/`pip_layer()` | 切到全屏图形时让真人不消失（"人物不消失"固定规则） | `library/_shared/paper-craft-components/src/sb_lib.py` + `a0lib.py` | 视频20 |

@@ -2,11 +2,12 @@
 
   python3 -m render build    STORYBOARD [--out-dir DIR] [--formats prores,hevc] [--workers 4] [--selftest]
   python3 -m render resolve  STORYBOARD [--out RESOLVED]
-  python3 -m render overlay  RESOLVED --out OVERLAY.mov [--layer front|behind] [--formats prores,hevc] [--workers 4]
-  python3 -m render composite RESOLVED --front F.mov [--behind B.mov] --out FINAL.mp4
+  python3 -m render overlay  RESOLVED --out OVERLAY.mov [--layer front|behind|invert] [--formats prores,hevc] [--workers 4]
+  python3 -m render composite RESOLVED --front F.mov [--behind B.mov] [--invert I.mov] --out FINAL.mp4
   python3 -m render stills   RESOLVED --times 1.0 2.5 --out-dir DIR [--mode overlay|opaque] [--style NAME]
 
-`build` = resolve -> overlay layers (ProRes 4444, optional HEVC-alpha) -> composite -> QA gate
+`build` = resolve -> overlay layers behind / front / invert (ProRes 4444, optional HEVC-alpha; empty
+layers are skipped) -> composite -> QA gate
 (qa.check exact boxes + qa.pixel_qa on the final) -> contact sheets. QA is a gate: on any
 hit the MP4 is renamed final.QA_FAILED.mp4, BUILD_STATUS.json says FAIL and the exit code is 1.
 """
@@ -38,7 +39,7 @@ def cmd_overlay(a):
 
 def cmd_composite(a):
     from .composite import composite
-    print(composite(a.resolved, {"front": a.front, "behind": a.behind}, a.out))
+    print(composite(a.resolved, {"front": a.front, "behind": a.behind, "invert": a.invert}, a.out))
 
 
 def cmd_stills(a):
@@ -94,7 +95,7 @@ def cmd_build(a):
     T["resolve_s"] = round(time.time() - t0, 2)
     formats = tuple(a.formats.split(","))
     layers, stats = {}, {}
-    for layer in ("behind", "front"):
+    for layer in ("behind", "front", "invert"):
         tl = time.time()
         st = render_overlay(res, out / f"overlay_{layer}.mov", a.workers, formats, layer=layer, verbose=False)
         if st:
@@ -151,9 +152,9 @@ def main():
     ap = argparse.ArgumentParser(prog="python3 -m render")
     sp = ap.add_subparsers(dest="cmd", required=True)
     s = sp.add_parser("resolve"); s.add_argument("storyboard"); s.add_argument("--out"); s.set_defaults(fn=cmd_resolve)
-    s = sp.add_parser("overlay"); s.add_argument("resolved"); s.add_argument("--out", required=True); s.add_argument("--layer", choices=["front", "behind"])
+    s = sp.add_parser("overlay"); s.add_argument("resolved"); s.add_argument("--out", required=True); s.add_argument("--layer", choices=["front", "behind", "invert"])
     s.add_argument("--formats", default="prores"); s.add_argument("--workers", type=int, default=4); s.set_defaults(fn=cmd_overlay)
-    s = sp.add_parser("composite"); s.add_argument("resolved"); s.add_argument("--front"); s.add_argument("--behind"); s.add_argument("--out", required=True)
+    s = sp.add_parser("composite"); s.add_argument("resolved"); s.add_argument("--front"); s.add_argument("--behind"); s.add_argument("--invert"); s.add_argument("--out", required=True)
     s.set_defaults(fn=cmd_composite)
     s = sp.add_parser("stills"); s.add_argument("resolved"); s.add_argument("--times", type=float, nargs="+", required=True); s.add_argument("--out-dir", required=True)
     s.add_argument("--mode", default="overlay", choices=["overlay", "opaque"]); s.add_argument("--style"); s.set_defaults(fn=cmd_stills)

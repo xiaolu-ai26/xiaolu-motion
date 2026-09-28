@@ -4,6 +4,10 @@
    filled, the current one fills over the shot), chapter number (mono, accent)
    + Chinese title + tracked English label, revealed by a left-to-right wipe
    with a scan line; glowing progress head; wipes away to the right on exit.
+   Supports the invert layer (storyboard `invert: true`): everything is drawn in plain white,
+   hierarchy by alpha (INV_ALPHA), no glow; the compositor difference-blends that pass so the tag
+   reads dark on light footage and light on dark footage (dead zone: mid-grey, see
+   references/director.md). Normal passes are unchanged.
 
    Ported from 《在我开口之前》 ui.js drawHUDCold / drawChapterLabel / drawUIGlow
    (the 7 hard-coded chapters, x=72, y=176/236, 936 px width became params).
@@ -13,8 +17,17 @@ import { textW, stringInk } from '../engine/text.js';
 
 export const id = 'chapter_tag';
 export const role = 'hud';
-export const desc = '章节标签 + HUD 分段进度条：编号（等宽强调色）+ 中文标题 + 英文小标，左到右擦入带扫描线，进度头辉光，退场向右擦出。';
+export const desc = '章节标签 + HUD 分段进度条：编号（等宽强调色）+ 中文标题 + 英文小标，左到右擦入带扫描线，进度头辉光，退场向右擦出。支持 invert: true（反相混合图层：纯白墨、无辉光，亮底变暗、暗底保持亮）。';
 export const sfx_hints = [{ id: 'tick', at: 'start' }];
+export const invert = true;   // may sit on the difference-blended 'invert' layer
+
+// invert pass: white ink only, the token role decides the alpha (difference with white = inverse of the footage)
+const INV_ALPHA = { '@accent': 1, '@text': 1, '@text_dim': 0.6, '@hair': 0.3 };
+function ink(ctx, tk, env, color) {
+  if (env.invert) { ctx.fillStyle = '#FFFFFF'; return INV_ALPHA[color] ?? 1; }
+  ctx.fillStyle = tokColor(tk, color);
+  return 1;
+}
 
 export const params = {
   n: { default: '01', type: 'string', desc: '章节编号（可为空字符串）。' },
@@ -73,33 +86,35 @@ export function draw(ctx, t, p, tk, env) {
   const G = layout(t, p, tk, env);
   const s = G.s;
   if (G.clipR <= G.clipL) return;
+  const glow = env.invert ? null : env.glow;   // additive glow would only grey out a difference-blended layer
   ctx.save();
   ctx.beginPath(); ctx.rect(G.clipL, G.barY - 40 * s, G.clipR - G.clipL, G.base - G.barY + 80 * s); ctx.clip();
   // progress track
   for (let i = 0; i < G.count; i++) {
     const x = G.x0 + i * (G.segW + G.gap);
-    ctx.fillStyle = tokColor(tk, '@hair'); ctx.fillRect(x, G.barY, G.segW, 3 * s);
+    ctx.globalAlpha = ink(ctx, tk, env, '@hair'); ctx.fillRect(x, G.barY, G.segW, 3 * s); ctx.globalAlpha = 1;
     let f = 0, a = 1;
     if (i < G.idx) { f = 1; a = 0.6; } else if (i === G.idx) f = G.prog;
-    if (f > 0) { ctx.globalAlpha = a; ctx.fillStyle = tokColor(tk, '@accent'); ctx.fillRect(x, G.barY, G.segW * f, 3 * s); ctx.globalAlpha = 1; }
+    if (f > 0) { ctx.globalAlpha = a * ink(ctx, tk, env, '@accent'); ctx.fillRect(x, G.barY, G.segW * f, 3 * s); ctx.globalAlpha = 1; }
   }
   // label
   ctx.textBaseline = 'alphabetic'; ctx.textAlign = 'left';
   for (const q of G.parts) {
-    ctx.font = q.font; ctx.fillStyle = tokColor(tk, q.color); ctx.letterSpacing = q.ls ? q.ls.toFixed(2) + 'px' : '0px';
+    ctx.font = q.font; ctx.globalAlpha = ink(ctx, tk, env, q.color); ctx.letterSpacing = q.ls ? q.ls.toFixed(2) + 'px' : '0px';
     ctx.fillText(q.str, q.x, G.base);
   }
   ctx.letterSpacing = '0px';
-  if (G.right) { ctx.font = G.right.font; ctx.fillStyle = tokColor(tk, '@text_dim'); ctx.fillText(G.right.str, G.right.x, G.base); }
+  if (G.right) { ctx.font = G.right.font; ctx.globalAlpha = ink(ctx, tk, env, '@text_dim'); ctx.fillText(G.right.str, G.right.x, G.base); }
+  ctx.globalAlpha = 1;
   ctx.restore();
   // scan line at the moving wipe edge (entry and exit)
-  const edge = (x, a) => { if (a <= 0.01) return; ctx.globalAlpha = a; ctx.fillStyle = tokColor(tk, '@accent'); ctx.fillRect(x - 1 * s, G.barY - 22 * s, 2 * s, G.base - G.barY + 44 * s); ctx.globalAlpha = 1;
-    if (env.glow) { env.glow.globalAlpha = a * 0.8; env.glow.fillStyle = tokColor(tk, '@accent'); env.glow.fillRect(x - 3 * s, G.barY - 22 * s, 6 * s, G.base - G.barY + 44 * s); env.glow.globalAlpha = 1; } };
+  const edge = (x, a) => { if (a <= 0.01) return; ctx.globalAlpha = a * ink(ctx, tk, env, '@accent'); ctx.fillRect(x - 1 * s, G.barY - 22 * s, 2 * s, G.base - G.barY + 44 * s); ctx.globalAlpha = 1;
+    if (glow) { glow.globalAlpha = a * 0.8; glow.fillStyle = tokColor(tk, '@accent'); glow.fillRect(x - 3 * s, G.barY - 22 * s, 6 * s, G.base - G.barY + 44 * s); glow.globalAlpha = 1; } };
   if (G.wIn > 0 && G.wIn < 0.999) edge(G.clipR, (1 - G.wIn) * 0.9 + 0.1);
   if (G.wOut > 0.001 && G.wOut < 1) edge(G.clipL, 0.9 * (1 - G.wOut) + 0.1);
   // glowing progress head
-  if (env.glow && p.glow > 0 && G.headX > G.clipL && G.headX < G.clipR) {
-    drawSprite(env.glow, softDot('ui', tokColor(tk, '@accent')), G.headX, G.barY + 1.5 * s, 16 * s, p.glow * G.wIn * (1 - G.wOut));
+  if (glow && p.glow > 0 && G.headX > G.clipL && G.headX < G.clipR) {
+    drawSprite(glow, softDot('ui', tokColor(tk, '@accent')), G.headX, G.barY + 1.5 * s, 16 * s, p.glow * G.wIn * (1 - G.wOut));
   }
 }
 
@@ -129,4 +144,4 @@ export function bbox(t, p, tk, env) {
 
 export function mbSamples() { return 1; }
 
-export default { id, role, desc, params, sfx_hints, draw, bbox, mbSamples };
+export default { id, role, desc, params, sfx_hints, invert, draw, bbox, mbSamples };

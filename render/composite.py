@@ -4,6 +4,8 @@
   L1 behind graphics  transparent ProRes (premultiplied), under the person
   L2 person           base x person matte (grey video aligned with the clip's src; white = person)
   L3 front graphics   transparent ProRes (premultiplied), over everything
+  L3i invert HUD      transparent ProRes (premultiplied) of the shots marked `invert: true`,
+                      difference-blended over L3 (reads on light and dark footage alike)
   L4 camera           global keyframes (resolved["camera"]) applied to the footage and the matte
                       here, and to graphics inside the engine by their depth (parallax)
   L5 finish           eq (contrast / saturation / brightness / gamma) + grain on the whole picture
@@ -12,6 +14,14 @@ Premultiplied blending is done in planar RGB as  out = bg*(1-a) + O  with
 maskedmerge(bg, black, a) + blend=addition, because ffmpeg's own
 overlay=alpha=premultiplied subtracts a limited-range offset (16 levels in gbrp) and
 mis-weights semi-transparent pixels — measured by qa/alpha_selftest.py.
+
+The invert layer uses the W3C separable `difference` blend in premultiplied form:
+  out = bg*(1-a) + a*|bg - C| = bg*(1-a) + |bg*a - O|        (O = a*C, premultiplied rgb)
+i.e. maskedmerge(black, bg, a) -> bg*a, blend=difference with O, plus bg*(1-a). Swapping
+`addition` for `difference` in premul_over would give |bg*(1-a) - O|, which is 1 for any opaque
+white pixel (always white, never inverted); grainextract drops white ink on black to 0, and
+exclusion does not factor through premultiplied alpha. Pixels with a≈0 but rgb>0 (additive glow)
+degrade to bg + O, the same as premul_over.
 
 Camera: `perspective` with eval=frame + cubic sampling (sub-pixel; crop's size is fixed at
 init, so crop/scale zooms snap to whole pixels). See render/camera.py.
@@ -40,6 +50,22 @@ def premul_over(bg, ov_rgba, out, tag):
         f"[{tag}bz]lutrgb=r=0:g=0:b=0[{tag}black]",
         f"[{tag}bg][{tag}black][{tag}mask]maskedmerge[{tag}keep]",
         f"[{tag}keep][{tag}rgb]blend=all_mode=addition[{out}]",
+    ]
+
+
+def premul_diff(bg, ov_rgba, out, tag):
+    """filters for out = bg*(1-a) + |bg*a - O|  (premultiplied difference; bg: gbrp, ov_rgba: gbrap)"""
+    return [
+        f"[{ov_rgba}]split[{tag}c][{tag}a]",
+        f"[{tag}c]format=gbrp[{tag}rgb]",
+        f"[{tag}a]extractplanes=a,split=3[{tag}m1][{tag}m2][{tag}m3]",
+        f"[{tag}m1][{tag}m2][{tag}m3]mergeplanes=0x001020:gbrp,split[{tag}mask][{tag}mask2]",
+        f"[{bg}]split=3[{tag}bg][{tag}bg2][{tag}bz]",
+        f"[{tag}bz]lutrgb=r=0:g=0:b=0,split[{tag}black][{tag}black2]",
+        f"[{tag}bg][{tag}black][{tag}mask]maskedmerge[{tag}keep]",
+        f"[{tag}black2][{tag}bg2][{tag}mask2]maskedmerge[{tag}under]",
+        f"[{tag}under][{tag}rgb]blend=all_mode=difference[{tag}diff]",
+        f"[{tag}keep][{tag}diff]blend=all_mode=addition[{out}]",
     ]
 
 
@@ -77,7 +103,7 @@ def segments(res):
 
 
 def build(res, overlays=None, audio=True):
-    """overlays: {"behind": path|None, "front": path|None} (a plain path means front)"""
+    """overlays: {"behind": path|None, "front": path|None, "invert": path|None} (a plain path means front)"""
     if isinstance(overlays, (str, Path)):
         overlays = {"front": overlays}
     overlays = {k: v for k, v in (overlays or {}).items() if v}
@@ -159,6 +185,10 @@ def build(res, overlays=None, audio=True):
         fg.append(f"[{ov_idx['front']}:v]{OV_TO_RGBA}[ovf]")
         fg += premul_over(cur, "ovf", "L3", "f")
         cur = "L3"
+    if "invert" in overlays:
+        fg.append(f"[{ov_idx['invert']}:v]{OV_TO_RGBA}[ovi]")
+        fg += premul_diff(cur, "ovi", "L3i", "i")
+        cur = "L3i"
     fin = res.get("finish") or {}
     post = [TO_BT709]
     eqp = {k: fin[k] for k in ("contrast", "saturation", "brightness", "gamma") if k in fin}

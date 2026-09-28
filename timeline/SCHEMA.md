@@ -60,6 +60,7 @@
 - `component`：`components/<id>.js`；参数名、类型、范围由组件自己的 `params` 声明校验（`node timeline/dump_specs.mjs` 可列出）。
 - `kinetic_keyword` 未给 `params.text` 且 start 是文字锚时，自动用锚点文字。
 - `layer`：`"front"`（L3，默认）或 `"behind"`（L1，人身后；需要底片有 `matte`，否则警告）。
+- `invert`：`true` 时这一镜走反相混合图层（L3i）：单独渲成 `overlay_invert.mov`，在 L3 之后按 `bg·(1−a) + |bg·a − O|`（预乘 difference）合成，白墨在亮底变暗、暗底保持亮，中灰底（灰阶约 73–182）对比不足。只允许组件导出了 `invert = true`（目前 `chapter_tag`），否则解析报错；与 `layer: "behind"` 同用也报错。解析后这一镜的 `layer` 为 `"invert"`。用法和实测见 `references/director.md` 技法卡。
 - `depth`：视差系数。0 = 屏幕锁定（HUD，默认）；1 = 与底片同动；0–1 之间为视差。公式：`T_d(P) = (P − c_d)·z^d + C`，`c_d = C + (c − C)·d`（c 为镜头视野中心，C 为画面中心）。QA 读到的 bbox 已经过同一变换。
 - `z`：同层内的绘制顺序（默认数组顺序）；转场永远在最上层。
 
@@ -95,13 +96,14 @@
 ## 9. 解析结果（resolved.json，给渲染器和音频侧）
 
 - 所有时间都是绝对秒：`shots[].t0/t1`、`transitions[].t0/at/t1`、`camera[].t`、`base[].t0/t1`。
+- `shots[].layer`：`behind` / `front` / `invert`（由 `invert: true` 归一而来），渲染器按层各出一个 overlay，空层跳过。
 - `sfx`：全片扁平音效提示 `[{id, t, source, source_kind, gain_db?, pan?, dur?}]`，按时间排序，音频侧直接消费。
 - `tokens`：合并后的风格令牌；`words`：映射到时间轴的词；`music`、`finish`、`qa` 原样带出。
 
 ## 10. 组件契约（components/*.js，ES module）
 
-导出 `id`、`role`（overlay / hud / transition）、`desc`、`params`（`{name: {default, type, desc, min?, max?, values?}}`）、`sfx_hints`，以及：
-- `draw(ctx, localT, params, tokens, env)`：`ctx` 为全分辨率主层；`env = {W, H, fps, s(=W/1080), dur, t, glow(半分辨率辉光层，同一坐标系), subdt, mode, seed, id}`。不要对 `env.glow` 调 `setTransform`。
+导出 `id`、`role`（overlay / hud / transition）、`desc`、`params`（`{name: {default, type, desc, min?, max?, values?}}`）、`sfx_hints`，可选 `invert = true`（声明可放进反相混合图层），以及：
+- `draw(ctx, localT, params, tokens, env)`：`ctx` 为全分辨率主层；`env = {W, H, fps, s(=W/1080), dur, t, glow(半分辨率辉光层，同一坐标系), subdt, mode, seed, id, invert}`。不要对 `env.glow` 调 `setTransform`。`env.invert` 为真时这一镜在反相图层，组件应只画白墨（层级用 alpha）、不画辉光。
 - `bbox(localT, params, tokens, env)` → `[{kind: text|shape, label, x, y, w, h, alpha, font_px?, bleed?, full?}]`，与 draw 共用同一份布局函数。
 - 可选 `mbSamples(localT, …)`：本帧需要的运动模糊子帧数；可选 `post(localT, …)` → `{flash, ca, fade}`。
 - 颜色参数写 `@name`（取 `tokens.colors.name`）或 `#hex`；字体只通过 `tokens.type.<角色>` 取。
@@ -115,3 +117,4 @@
 5. sfx 在解析后扁平成全片 `sfx` 列表（音频侧契约）；`music` 允许附加字段。
 6. qa 新增 `captions.band`、`face.pad`、`sample_every`、`overlap_tolerance_px`、`min_font_px`，且全部为门禁。
 7. `canvas` 限定 w=1080、h∈{1440,1920}、fps∈{30,60}。
+8. （2026-09-28）shots 新增 `invert`（反相混合图层 L3i）；组件契约新增可选导出 `invert` 和 `env.invert`；解析结果的 `layer` 多一个取值 `invert`。不写 `invert` 的分镜解析与合成结果不变。

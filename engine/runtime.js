@@ -16,7 +16,10 @@
      id, role, params{name:{default,type,desc}},
      draw(ctx, localT, params, tokens, env), bbox(localT, params, tokens, env),
      optional mbSamples(localT, params, tokens, env), post(localT, ...) -> {flash, ca}
-   env = {W, H, fps, s (=W/1080), dur, t, glow (half-res ctx, same coordinates), subdt, mode, seed, id}
+   env = {W, H, fps, s (=W/1080), dur, t, glow (half-res ctx, same coordinates), subdt, mode, seed, id, invert}
+   invert: the shot is on the 'invert' layer (storyboard `invert: true`), difference-blended over the
+   footage by render/composite.py premul_diff; components that export `invert = true` draw plain
+   white ink there (hierarchy by alpha) and no glow.
    ========================================================================== */
 import { E, hashStr, resetCtx, mkCanvas } from './core.js';
 import { createPost } from './post.js';
@@ -39,7 +42,7 @@ export function defaultsOf(mod) {
   return d;
 }
 function envFor(it, t) {
-  return { W, H, fps: FPS, s: W / 1080, dur: it.t1 - it.t0, t, glow: gctx, subdt: SUBDT, mode: CFG.mode, seed: it.seed, id: it.id };
+  return { W, H, fps: FPS, s: W / 1080, dur: it.t1 - it.t0, t, glow: gctx, subdt: SUBDT, mode: CFG.mode, seed: it.seed, id: it.id, invert: it.layer === 'invert' };
 }
 
 /* ---- global camera (L4) + parallax ------------------------------------------------------
@@ -102,7 +105,7 @@ export async function boot(cfg) {
     ITEMS.push({ kind: 'transition', id: tr.id, comp: mod, t0: tr.t0, t1: tr.t1, p: deepMerge(defaultsOf(mod), tr.params || {}), z: 1000 + (tr.z ?? k), seed: hashStr(tr.id),
       layer: 'front', depth: 0 });
   });
-  // one render pass per compositing layer: 'behind' (L1, under the person) or 'front' (L3); null = all
+  // one render pass per compositing layer: 'behind' (L1, under the person), 'front' (L3) or 'invert' (L3i); null = all
   if (cfg.layer) ITEMS = ITEMS.filter(it => it.layer === cfg.layer);
   ITEMS.sort((a, b) => a.z - b.z);
   WC = mkCanvas(W, H); wctx = WC.getContext('2d');
@@ -132,6 +135,9 @@ function uniforms(t) {
     U.ca = Math.max(U.ca, r.ca || 0);
     if (r.fade !== undefined) U.fade = Math.min(U.fade, r.fade);
   }
+  // the invert pass is difference-blended: a white flash would invert the whole frame, a black
+  // vignette is a no-op that only adds coverage, bloom is additive haze; fade (layer opacity) stays
+  if (CFG.layer === 'invert') { U.flash = 0; U.vig = 0; U.bloom = [0, 0]; }
   if (CFG.overrides) Object.assign(U, CFG.overrides);
   return U;
 }
@@ -215,7 +221,7 @@ export async function renderRange(i0, i1, base) {
 export function stats() { return { ...STATS }; }
 export async function specs(ids) {
   const out = {};
-  for (const id of ids) { const m = await importComponent(id); out[id] = { id: m.id, role: m.role, desc: m.desc, params: m.params, sfx_hints: m.sfx_hints || [] }; }
+  for (const id of ids) { const m = await importComponent(id); out[id] = { id: m.id, role: m.role, desc: m.desc, params: m.params, sfx_hints: m.sfx_hints || [], invert: !!m.invert }; }
   return out;
 }
 

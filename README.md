@@ -50,8 +50,8 @@ python3 scripts/with_heavy_lock.py -- \
 2. **透明层**(`render/overlay.py`):N 个 headless Chrome 各渲一段连续帧,`renderFrame(i/fps)` 的预乘 RGBA 直接经本地 HTTP 流进各自的 ffmpeg,不落 PNG 序列。
    - ProRes 4444:`prores_ks`、`yuva444p10le`、16 位 alpha、预乘、BT.709 标记,分段后 `-c copy` 无损拼接。
    - HEVC-alpha:从成品 ProRes 走一次 `hevc_videotoolbox`,MOV/hvc1,预乘(VideoToolbox 默认,SEI `alpha_channel_use_idc=1`)。要写全 BT.709 三个标记,必须以 AYUV 喂给编码器;事后用 `hevc_metadata` 补标记会让 AVFoundation 解不出 alpha 层。
-   - 按层渲染:`layer: behind` 的镜头出 `overlay_behind.mov`,`front`(默认,含转场)出 `overlay_front.mov`。
-3. **分层合成**(`render/composite.py`,一次 ffmpeg):L0 底片 → L1 人后图形 → L2 人像(底片 × 灰度遮罩)→ L3 人前图形 → L4 全局镜头(底片和遮罩在 ffmpeg 里做,图形在引擎里按 `depth` 做视差)→ L5 统一收尾(eq + 颗粒)。预乘混合写成 `bg·(1−a) + O`(`maskedmerge` + `blend=addition`,平面 RGB)。**不用** ffmpeg 自带的 `overlay=alpha=premultiplied`:实测它在 gbrp 下整体偏 16 级,半透明边缘权重也不对(见 `qa/alpha_selftest.py`)。
+   - 按层渲染:`layer: behind` 的镜头出 `overlay_behind.mov`,`front`(默认,含转场)出 `overlay_front.mov`,`invert: true` 的镜头出 `overlay_invert.mov`。
+3. **分层合成**(`render/composite.py`,一次 ffmpeg):L0 底片 → L1 人后图形 → L2 人像(底片 × 灰度遮罩)→ L3 人前图形 → L3i 反相 HUD(`invert: true`,difference 混合,见 `references/director.md`)→ L4 全局镜头(底片和遮罩在 ffmpeg 里做,图形在引擎里按 `depth` 做视差)→ L5 统一收尾(eq + 颗粒)。预乘混合写成 `bg·(1−a) + O`(`maskedmerge` + `blend=addition`,平面 RGB)。**不用** ffmpeg 自带的 `overlay=alpha=premultiplied`:实测它在 gbrp 下整体偏 16 级,半透明边缘权重也不对(见 `qa/alpha_selftest.py`)。
 4. **镜头**:`perspective … eval=frame` + 三次插值,子像素平滑。crop 的输出尺寸只在初始化时求值,crop/scale 式推近会按整像素跳。取景窗口恒为画布比例,只会等比缩放。
 5. **QA 门禁**:`qa.check`(精确 bbox)+ `qa.pixel_qa`(对成片像素复核)。任何一项命中:`final.QA_FAILED.mp4`、`BUILD_STATUS.json` = FAIL、退出码 1。规则清单见 `references/qa.md`。
 
